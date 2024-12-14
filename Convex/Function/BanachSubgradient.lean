@@ -3,9 +3,10 @@ Copyright (c) 2023 Wanyi He. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Wanyi He, Chenyi Li, Zichen Wang
 -/
-import Mathlib.Analysis.NormedSpace.Dual
+import Mathlib.Analysis.Normed.Module.Dual
 import Mathlib.Analysis.NormedSpace.HahnBanach.Separation
 import Mathlib.LinearAlgebra.Dual
+
 
 noncomputable section
 
@@ -70,6 +71,10 @@ lemma mem_epi_frontier : ∀ y ∈ interior s, (y, f y) ∈
   obtain ⟨_, h2⟩ := st this
   simp at h2; linarith
 
+/-
+c.f. https://github.com/leanprover-community/mathlib4/commit/c3ec6bedfaddc035e24f86a44099089854a7d13c
+-/
+include hf in
 theorem Banach_SubderivWithinAt.Nonempty (hc : ContinuousOn f (interior s)) (hx : x ∈ interior s) :
     Set.Nonempty (Banach_SubderivWithinAt f s x) := by
   have hepi_f₁ : Convex ℝ (interior (Epi f s)) := Convex.interior (ConvexOn.convex_epigraph hf)

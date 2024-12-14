@@ -142,8 +142,8 @@ lemma convex_lipschitz (h₁ : ∀ x₁ : E, HasGradientAt f (f' x₁) x₁)
         · simp;
           calc l / 2 * a * a = (l * a) * (a / 2) := by ring_nf
                 _  ≤ 1 * (a / 2) := by
-                  apply mul_le_mul_of_le_of_le _ (by linarith) (by positivity) (by linarith)
-                  · exact (le_div_iff ha₂).mp ha₁
+                  apply mul_le_mul_of_nonneg _ (by linarith) (by positivity) (by linarith)
+                  · exact (le_div_iff₀ ha₂).mp ha₁
                 _  = - a / 2 + a := by ring_nf
         · exact sq_nonneg ‖f' x‖
     _ = f x - a / 2 *  ‖f' x‖ ^ 2 := by ring_nf
@@ -161,7 +161,8 @@ lemma point_descent_for_convex (hfun : ConvexOn ℝ Set.univ f) (step₂ : alg.a
       f xm + 1 / ((2 : ℝ) * alg.a) * (‖x - xm‖ ^ 2 - ‖x - alg.a • (f' x) - xm‖ ^ 2) := by
     intro x
     have t1 : 1 / ((2 : ℝ) * alg.a) * ((2 : ℝ) * alg.a) = 1 := by
-      field_simp; ring_nf; apply mul_inv_cancel; linarith [alg.step₁]
+      have neq0 : Gradient_Descent_fix_stepsize.a f f' x₀ ≠ 0 := by linarith [alg.step₁]
+      field_simp;
     have t2 : inner (f' x) (x - xm) - alg.a / 2 * ‖f' x‖ ^ 2 =
         1 / ((2 : ℝ) * alg.a) * (‖x - xm‖ ^ 2 - ‖x - alg.a • (f' x) - xm‖ ^ 2) := by
       symm

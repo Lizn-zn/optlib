@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Shengyang Xu, Chenyi Li
 -/
 import Convex.Function.Proximal
-
 /-!
 # ProximalGradient
 
@@ -40,7 +39,7 @@ theorem proximal_gradient_method_converge : ∀ (k : ℕ+),
     (f (alg.x k) + h (alg.x k) - f alg.xm - h alg.xm)
     ≤ 1 / (2 * k * alg.t) * ‖x₀ - alg.xm‖ ^ 2 := by
   intro k
-  rw [mul_comm, mul_one_div, le_div_iff, mul_comm]
+  rw [mul_comm, mul_one_div, le_div_iff₀, mul_comm]
   have th : ContinuousOn (alg.t • h) univ := by
     apply ContinuousOn.const_smul alg.h₃ alg.t
   have th' : ConvexOn ℝ univ (alg.t • h) := by
@@ -129,8 +128,9 @@ theorem proximal_gradient_method_converge : ∀ (k : ℕ+),
           rw [norm_sub_sq_real]; field_simp; ring_nf
           rw [inner_smul_right, real_inner_comm];
           nth_rw 2 [mul_comm _ (alg.t)⁻¹]; rw [norm_smul, mul_pow, pow_two ‖alg.t‖]
-          simp; rw [mul_comm _ ⟪q, p⟫_ℝ, mul_assoc _ alg.t, mul_inv_cancel, ← mul_assoc]
-          rw [← mul_assoc, inv_mul_cancel]; simp
+          simp; rw [mul_comm _ ⟪q, p⟫_ℝ, mul_assoc _ alg.t];
+          have ne0 : proximal_gradient_method.t f h f' x₀ ≠ 0 := by linarith [alg.tpos]
+          field_simp;
           repeat linarith [alg.tpos]
         rw [sub_right_comm]; apply aux
   have iter : ∀ i : ℕ, alg.x (i + 1) = alg.x i - alg.t • Gt (alg.x i) := by

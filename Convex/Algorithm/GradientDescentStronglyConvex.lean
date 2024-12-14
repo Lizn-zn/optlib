@@ -38,7 +38,7 @@ theorem Strong_convex_Lipschitz_smooth (hsc: StrongConvexOn univ m f) (mp : m > 
   let phi : E → ℝ := fun x ↦ l / 2 * ‖x‖ ^ 2 - f x
   have convphi : ConvexOn ℝ univ phi := by
     apply lipschitz_to_lnorm_sub_convex
-    apply cov; simp; apply hf; rw [← lipschitzOn_univ] at h₂; apply h₂; apply hl
+    apply cov; simp; apply hf; rw [← lipschitzOnWith_univ] at h₂; apply h₂; apply hl
   let g : E → ℝ := fun x ↦ f x - m / 2 * ‖x‖ ^ 2
   let g' : E → E := fun x ↦ f' x - m • x
   let h : E → ℝ := fun x ↦ (l - m) / 2 * ‖x‖ ^ 2 - g x
@@ -74,7 +74,7 @@ theorem Strong_convex_Lipschitz_smooth (hsc: StrongConvexOn univ m f) (mp : m > 
         rw [mul_pow, sq_abs]
       rw [this]
       intro h0; rw [inner_sub_left, inner_smul_left] at h0; field_simp at h0
-      rw [real_inner_self_eq_norm_sq, div_le_iff] at h0
+      rw [real_inner_self_eq_norm_sq, div_le_iff₀] at h0
       field_simp at h0; rw [sub_mul, sub_add_eq_add_sub, le_sub_iff_add_le] at h0
       rw [mul_right_comm, mul_sub] at h0; ring_nf at h0
       rw [mul_right_comm, ← add_mul] at h0
@@ -106,7 +106,7 @@ theorem Strong_convex_Lipschitz_smooth (hsc: StrongConvexOn univ m f) (mp : m > 
     have mlpos : 0 < m + l := by linarith
     have eq3 (u v : E) (h1 : m * ‖v‖ ^ 2 ≤ inner u v) (h2 : 1 / l * ‖u‖ ^ 2 ≤ inner u v):
       inner u v ≥ m * l / (m + l) * ‖v‖ ^ 2 + 1 / (m + l) * ‖u‖ ^ 2 := by
-        field_simp; rw [div_le_iff mlpos, mul_comm _ (m + l), add_mul]
+        field_simp; rw [div_le_iff₀ mlpos, mul_comm _ (m + l), add_mul]
         have eq4 : m * l * ‖v‖ ^ 2  ≤ m * inner u v := by
           calc
             _ ≤ m * m * ‖v‖ ^ 2 := by
@@ -118,7 +118,7 @@ theorem Strong_convex_Lipschitz_smooth (hsc: StrongConvexOn univ m f) (mp : m > 
             _ ≤ m * inner u v := by
               rw [mul_assoc, mul_le_mul_left]; apply h1; apply mp
         have eq5 : ‖u‖ ^ 2 ≤ l * inner u v := by
-          field_simp at h2; rw [mul_comm, ← div_le_iff]; apply h2; apply hl
+          field_simp at h2; rw [mul_comm, ← div_le_iff₀]; apply h2; apply hl
         linarith
     show inner alpha beta ≥ m * l / (m + l) * ‖beta‖ ^ 2 + 1 / (m + l) * ‖alpha‖ ^ 2
     apply eq3; apply eq2; apply eq1
@@ -137,6 +137,7 @@ lemma lipschitz_derivxm_eq_zero (h₁ : ∀ x : E, HasGradientAt f (f' x) x)
 
 variable (hsc: StrongConvexOn univ m f) {alg : Gradient_Descent_fix_stepsize f f' x₀}
 
+include hsc in
 lemma gradient_method_strong_convex (hm : m > 0) (min : IsMinOn f univ xm)
     (step₂ : alg.a ≤ 2 / (m + alg.l)) : ∀ k : ℕ , ‖alg.x k - xm‖ ^ 2 ≤ (1 - alg.a *
     (2 * m * alg.l / (m + alg.l))) ^ k * ‖x₀ - xm‖ ^ 2 := by

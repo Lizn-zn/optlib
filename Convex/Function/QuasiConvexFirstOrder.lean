@@ -35,7 +35,7 @@ theorem Quasiconvex_first_order_condition_right (h : HasFDerivAt f (f' x) x) (xs
   let ε := (f' x) (y - x) / (2 * ‖x-y‖)
   have εpos: 0 < ε := by
     apply div_pos H
-    exact Real.mul_pos two_pos h₃
+    exact mul_pos two_pos h₃
   specialize h₁ ε εpos
   rcases h₁ with ⟨δ, dpos, converge⟩
   let b1:= δ /(‖x - y‖)

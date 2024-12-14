@@ -43,6 +43,7 @@ variable {alg : Nesterov_second f h f' x0}
 
 variable {xm : E} (minφ : IsMinOn (f + h) Set.univ xm)
 
+include minφ in
 theorem Nesterov_second_convergence :
     ∀ (k : ℕ), f (alg.x (k + 1)) + h (alg.x (k + 1)) - f xm - h xm ≤
       (alg.γ (k + 1)) ^ 2 / (2 * alg.t (k + 1)) * ‖x0 - xm‖ ^ 2 := by
@@ -52,7 +53,7 @@ theorem Nesterov_second_convergence :
       ∈ (SubderivAt (alg.t k • h) (alg.y k)) := by
     intro k; obtain h1 := alg.update2 k
     rw [prox_iff_subderiv] at h1
-    have upd2 := @SubderivAt.pos_smul _ _ _ ((alg.t k / alg.γ k) • h) (alg.y k) (alg.γ k) (alg.γbound k).1
+    have upd2 := @SubderivAt.pos_smul _ _ _ _ ((alg.t k / alg.γ k) • h) (alg.y k) (alg.γ k) (alg.γbound k).1
     rw [← smul_assoc, smul_eq_mul, mul_div, mul_comm, ← mul_div, div_self, mul_one] at upd2
     rw [upd2]
     use (alg.y (↑k - 1) - (alg.t ↑k / alg.γ ↑k) • f' (alg.z k) - alg.y ↑k)
@@ -412,7 +413,7 @@ instance {f h : E → ℝ} {f' : E → E} {x0 : E} [p : Nesterov_second_fix_step
       simp [hk]; positivity
     · by_cases hk : k = 0
       rw [hk]; simp; norm_num; push_neg at hk
-      simp [hk]; rw [div_le_iff (by positivity)]; simp [hk]
+      simp [hk]; rw [div_le_iff₀ (by positivity)]; simp [hk]
       have : (k : ℝ) ≥ 1 := by
         rw [← Nat.pos_iff_ne_zero, Nat.lt_iff_add_one_le, zero_add] at hk; simp [hk]
       linarith
@@ -424,6 +425,7 @@ variable {alg : Nesterov_second_fix_stepsize f h f' x0}
 
 variable {xm : E} (minφ : IsMinOn (f + h) univ xm)
 
+include minφ in
 theorem Nesterov_second_fix_stepsize_converge:
     ∀ (k : ℕ), f (alg.x (k + 1)) + h (alg.x (k + 1)) - f xm - h xm ≤
     2 * alg.l / (k + 2) ^ 2 * ‖x0 - xm‖ ^ 2 := by

@@ -636,7 +636,8 @@ theorem proximal_shift (a : E) {t : ℝ} (tnz : t ≠ 0) (f : E → ℝ):
   constructor
   · intro cond y
     specialize cond (t⁻¹ • (y - a))
-    rw [← smul_assoc, smul_eq_mul, mul_inv_cancel] at cond
+    have tinv : t * t⁻¹ = 1 := by field_simp
+    rw [← smul_assoc, smul_eq_mul, tinv] at cond
     simp at cond
     calc
       t ^ 2 * f (t • z + a) + ‖t • z - t • x‖ ^ 2 / 2 =
@@ -648,7 +649,6 @@ theorem proximal_shift (a : E) {t : ℝ} (tnz : t ≠ 0) (f : E → ℝ):
         rw [mul_add, norm_smul, mul_pow]; field_simp
       _ = t ^ 2 * f y + ‖y - (t • x + a)‖ ^ 2 / 2 := by
         rw [smul_sub, ← smul_assoc, smul_eq_mul, ← sub_sub, sub_right_comm]; field_simp
-    use tnz
   · intro cond y
     specialize cond (t • y + a)
     rw [← smul_sub, norm_smul, mul_pow] at cond; simp at cond
@@ -669,18 +669,19 @@ theorem proximal_scale {t : ℝ} (tpos : 0 < t) (f : E → ℝ):
   · intro cond y
     specialize cond (t • y)
     have tsq : 0 < t ^ 2 := by field_simp
+    have tinv : t * t⁻¹ = 1 := by field_simp
     rw [← mul_le_mul_left tsq]
     calc
       t ^ 2 * (t⁻¹ * f (t⁻¹ • z) + ‖t⁻¹ • z - t⁻¹ • x‖ ^ 2 / 2) =
           t * f (t⁻¹ • z) + ‖z - x‖ ^ 2 / 2 := by
         rw [← smul_sub, norm_smul, mul_pow, mul_add, pow_two, ← mul_assoc, mul_assoc _ _ (t⁻¹)]
-        rw [mul_inv_cancel, mul_div_assoc, ← mul_assoc]; simp
-        rw [← pow_two, mul_inv_cancel]; repeat simp; repeat linarith
+        rw [tinv, mul_div_assoc, ← mul_assoc]; simp
+        rw [← pow_two]; field_simp;
       _ ≤ t * f (t⁻¹ • t • y) + ‖t • y - x‖ ^ 2 / 2 := cond
       _ = t ^ 2 * (t⁻¹ * f y) + ‖t • (y - t⁻¹ • x)‖ ^ 2 / 2 := by
-        rw [pow_two t, ← mul_assoc, mul_assoc _ _ (t⁻¹), mul_inv_cancel]
-        rw [← smul_assoc, smul_eq_mul, inv_mul_cancel]; simp
-        rw [smul_sub, ← smul_assoc, smul_eq_mul, mul_inv_cancel]; simp; repeat linarith
+        rw [pow_two t, ← mul_assoc, mul_assoc _ _ (t⁻¹), tinv]
+        rw [← smul_assoc, smul_eq_mul]; simp; field_simp;
+        rw [smul_sub, ← smul_assoc, smul_eq_mul]; field_simp;
       _ = t ^ 2 * (t⁻¹ * f y + ‖y - t⁻¹ • x‖ ^ 2 / 2) := by
         rw [mul_add, norm_smul, mul_pow]; field_simp
   · intro cond y
@@ -691,15 +692,16 @@ theorem proximal_scale {t : ℝ} (tpos : 0 < t) (f : E → ℝ):
       t * f (t⁻¹ • z) + ‖z - x‖ ^ 2 / 2 =
           t ^ 2 * (t⁻¹ * f (t⁻¹ • z) + ‖t⁻¹ • z - t⁻¹ • x‖ ^ 2 / 2) := by
         rw [← smul_sub, norm_smul, mul_pow, mul_add, pow_two t, ← mul_assoc, mul_assoc _ _ (t⁻¹)]
-        rw [mul_inv_cancel, mul_div_assoc, ← mul_assoc]; simp
-        rw [← pow_two, mul_inv_cancel]; repeat simp; repeat linarith
+        rw [mul_div_assoc, ← mul_assoc]; simp;
+        rw [← pow_two]; repeat field_simp; repeat linarith
       _ ≤ t ^ 2 * (t⁻¹ * f (t⁻¹ • y) + ‖t⁻¹ • y - t⁻¹ • x‖ ^ 2 / 2) := cond
       _ = t ^ 2 * (t⁻¹ * f (t⁻¹ • y)) + ‖t • (t⁻¹ • y - t⁻¹ • x)‖ ^ 2 / 2 := by
         rw [mul_add, norm_smul, mul_pow]; field_simp
       _ = t * f (t⁻¹ • y) + ‖y - x‖ ^ 2 / 2 := by
-        rw [pow_two t, ← mul_assoc, mul_assoc _ _ (t⁻¹), mul_inv_cancel]
-        rw [smul_sub, ← smul_assoc, smul_eq_mul, mul_inv_cancel]; simp
-        rw [← smul_assoc, smul_eq_mul, mul_inv_cancel]; simp; repeat linarith
+        rw [pow_two t, ← mul_assoc, mul_assoc _ _ (t⁻¹)]; field_simp
+        rw [smul_sub, ← smul_assoc, smul_eq_mul]; simp
+        rw [← smul_assoc, smul_eq_mul]; field_simp;
+
 
 /-
   change of proximal when added a linear components

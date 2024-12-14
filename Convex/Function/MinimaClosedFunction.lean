@@ -64,8 +64,10 @@ private lemma l0 (y : F) (h : (f ⁻¹' Set.Iic y).Nonempty) :
     _ = sInf ({f x | x ∈ f ⁻¹' Set.Iic y} ∪ {f x | x ∈ (f ⁻¹' Set.Iic y)ᶜ}) := Eq.symm sInf_union
     _ = sInf {f x | x : E} := congrArg sInf (id (Eq.symm h₀))
 
+
 /- If a premiage of `f` is nonempty and compact,
   then its minimum point set `{x | IsMinOn f univ x}` is nonempty -/
+include hf in
 theorem IsMinOn.of_isCompact_preimage {y : F}
     (h1 : (f ⁻¹' Set.Iic y).Nonempty) (h2 : IsCompact (f ⁻¹' Set.Iic y)) :
     ∃ x, IsMinOn f univ x := by
@@ -93,7 +95,7 @@ variable [PseudoMetricSpace E] [ProperSpace E]
 
 /- If a premiage of `f` is nonempty and compact,
   then its minimum point set `{x | IsMinOn f univ x}` is compact -/
-
+include hf in
 theorem IsCompact_isMinOn_of_isCompact_preimage {y : F}
     (h1 : (f ⁻¹' Set.Iic y).Nonempty) (h2 : IsCompact (f ⁻¹' Set.Iic y)) :
     IsCompact {x | IsMinOn f univ x} := by
@@ -126,6 +128,7 @@ def strong_quasi : Prop :=
 variable ( hf' : @strong_quasi E F _ _ f 𝕜 _ _)
 
 /- the Minimum of strongly quasi function is unique -/
+include 𝕜 hf' in
 theorem isMinOn_unique {x y : E} (hx : IsMinOn f univ x) (hy : IsMinOn f univ y) : x = y := by
   by_contra neq
   have : (0 : 𝕜) < (1 : 𝕜) := one_pos

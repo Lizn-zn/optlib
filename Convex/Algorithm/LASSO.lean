@@ -3,7 +3,7 @@ Copyright (c) 2024 Yuxuan Wu, Chenyi Li. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yuxuan Wu, Chenyi Li
 -/
-import Mathlib.Analysis.NormedSpace.Star.Matrix
+import Mathlib.Analysis.CStarAlgebra.Matrix
 import Mathlib.LinearAlgebra.Matrix.DotProduct
 import Convex.Algorithm.ProximalGradient
 
@@ -148,8 +148,7 @@ theorem affine_sq_gradient :  ∀ x : (EuclideanSpace ℝ (Fin n)),
   have φeq : φ = fun x : (EuclideanSpace ℝ (Fin n)) => f x - h x + (1 / 2) * b ⬝ᵥ b := by
     ext z; simp [φ]; rw [norm2eq_dot]; simp [f, h]
     rw [← sub_add, dotProduct_comm _ b, sub_sub, ← two_mul, mul_add, mul_sub, ← mul_assoc]
-    rw [inv_mul_cancel, one_mul]
-    simp
+    field_simp;
   have φ'eq : φ' = fun x : (EuclideanSpace ℝ (Fin n)) => f' x - h' x := by
     ext y z; simp [φ', f', h']
     rw [Matrix.mulVec_sub Aᵀ]; simp
@@ -237,9 +236,7 @@ theorem norm_one_proximal
         exact aux; apply mul_nonneg; apply mul_nonneg
         apply abs_nonneg; simp; linarith [μpos]; simp; linarith [tpos]
       _ = |y i| := by
-        rw [mul_assoc _ (t⁻¹) t, inv_mul_cancel, mul_one]
-        rw [mul_assoc _ (μ⁻¹) μ, inv_mul_cancel, mul_one]
-        linarith [μpos]; linarith [tpos]
+        rw [mul_assoc _ (t⁻¹) t]; field_simp
   · rw [eq_ite_iff, or_iff_right] at abs_subg
     rcases abs_subg with ⟨_, abs_subg⟩
     let sgnxm := sign (xm i)
@@ -256,7 +253,7 @@ theorem norm_one_proximal
       rw [eq1]; simp; nth_rw 3 [mul_sub]
       rw [← sub_add, real_sign_mul_abs]; simp
       nth_rw 2 [mul_comm (sign (x i))]
-      rw [← mul_assoc _ (t * μ), ← mul_inv, mul_comm μ t, inv_mul_cancel, one_mul]
+      rw [← mul_assoc _ (t * μ), ← mul_inv, mul_comm μ t]; field_simp
       by_cases hx : 0 < x i
       · have eq2 : sign (sign (x i) * (|x i| - t * μ)) = 1 := by
           apply Real.sign_of_pos; apply mul_pos
@@ -276,7 +273,6 @@ theorem norm_one_proximal
             _ < 0 := by linarith
           linarith [ieq]
         rw [eq2]; symm; apply Real.sign_of_neg xneg
-      linarith [μpos, tpos]
     rw [aux2] at aux; linarith [aux]
     push_neg; intro hxm'; contrapose! hxm'; exact hxm
 

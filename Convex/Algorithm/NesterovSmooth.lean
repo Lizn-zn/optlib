@@ -76,7 +76,7 @@ lemma one_iter (hfun : ConvexOn ℝ Set.univ f) (hg : ∀ (k : ℕ+), γ k = 2 /
       rw [hg k]
       apply div_nonneg (by norm_num); linarith
     have hl : γ k ≤ (1 : ℝ) := by
-      rw [hg k, div_le_iff lzero, one_mul, ← sub_le_iff_le_add]
+      rw [hg k, div_le_iff₀ lzero, one_mul, ← sub_le_iff_le_add]
       ring_nf; simp
       exact Nat.succ_le_of_lt k.2
     have : γ k • (xm - alg.x k) + (1 - γ k) • (alg.x (k - 1) - alg.x k)
@@ -131,7 +131,7 @@ lemma one_iter (hfun : ConvexOn ℝ Set.univ f) (hg : ∀ (k : ℕ+), γ k = 2 /
         _ = alg.l / 2 * (‖alg.y k - (1 - γ k) • (alg.x (k - 1)) - γ k • xm‖ ^ 2 -
                 ‖alg.x k - (1 - γ k) • alg.x (k - 1) - γ k • xm‖ ^ 2) := by
             rw [smul_add, smul_smul]; simp
-            left; rw [mul_inv_cancel (by linarith), one_smul, sub_smul, one_smul, add_comm, sub_add]
+            left; field_simp; rw [sub_smul, one_smul, add_comm, sub_add]
   have this2 : alg.l / 2 * (‖alg.y k - (1 - γ k) • (alg.x (k - 1)) - γ k • xm‖ ^ 2 -
       ‖alg.x k - (1 - γ k) • alg.x (k - 1) - γ k • xm‖ ^ 2) = alg.l *
       (inner (alg.x k - alg.y k) ((1 - γ k) • (alg.x (k - 1)) + ((γ k) • xm)- alg.x k))
@@ -233,7 +233,7 @@ theorem nesterov_algorithm_smooth (hfun: ConvexOn ℝ Set.univ f)
     rw [← div_mul]
     ring_nf
   rw [hg k] at h9
-  rw [← le_div_iff'] at h9
+  rw [← le_div_iff₀'] at h9
   · rw [h10] at h9
     exact h9
   · simp only [Real.rpow_two, div_pow, one_div, inv_div]

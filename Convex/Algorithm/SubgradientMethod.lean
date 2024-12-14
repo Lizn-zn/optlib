@@ -31,6 +31,7 @@ variable {S :Set E} {f : E → ℝ} {g : E} {x : E}
 
 variable {G : NNReal} (hf : ConvexOn ℝ univ f) (hc : ContinuousOn f univ)
 
+include hf hc in
 theorem bounded_subgradient_to_Lipschitz
     (h : ∀ ⦃x : E⦄ , ∀ ⦃g⦄ , g ∈ SubderivAt f x → ‖g‖ ≤ G) :
     LipschitzWith G f := by
@@ -118,6 +119,7 @@ theorem Lipschitz_to_bounded_subgradient (h : LipschitzWith G f ) :
   linarith
 
 /- Subgradient of `f` is bounded if and only if `f` is Lipschitz -/
+include hf hc in
 theorem bounded_subgradient_iff_Lipschitz :
     (∀ ⦃x : E⦄ , ∀ ⦃g⦄ , g ∈ SubderivAt f x → ‖g‖ ≤ G)  ↔ LipschitzWith G f :=
   ⟨bounded_subgradient_to_Lipschitz hf hc, Lipschitz_to_bounded_subgradient⟩
@@ -255,7 +257,8 @@ theorem subgradient_method_fix_step_size {t : ℝ}
     _ = 2 * ((↑k + 1) * t) * (‖x₀ - xm‖ ^ 2 / (2 * (↑k + 1) * t) + ↑alg.G ^ 2 * t / 2) := by
       field_simp; ring
 
-/-- convergence with fixed $‖x^{i+1}-x^{i}‖$ --/
+/- convergence with fixed $‖x^{i+1}-x^{i}‖$ -/
+include hm in
 theorem subgradient_method_fixed_distance {s : ℝ}
    (ha' : ∀ (n : ℕ), alg.a n * ‖alg.g n‖ = s) (hs : s > 0):
     ∀ (k : ℕ) ,(sInf {x | ∃ i ∈ Finset.range (k + 1), f (alg.x i) = x}) - (f xm)
@@ -331,7 +334,7 @@ theorem subgradient_method_fixed_distance {s : ℝ}
     apply Finset.sum_le_sum
     intro i _
     rw [← (ha' i)]
-    apply (div_le_iff hG).mpr ((mul_le_mul_left (alg.ha i)).mpr (h' (alg.hg i)))
+    apply (div_le_iff₀ hG).mpr ((mul_le_mul_left (alg.ha i)).mpr (h' (alg.hg i)))
   have hpos₁ : (↑k + 1) * (s / ↑alg.G) > 0 := by
     apply mul_pos
     · apply add_pos_of_nonneg_of_pos (Nat.cast_nonneg k) zero_lt_one
@@ -364,14 +367,15 @@ theorem subgradient_method_fixed_distance {s : ℝ}
   calc
     _= sInf {x | ∃ i < k + 1, f (alg.x i) = x} - f xm := by simp
     _ ≤ (‖x₀ - xm‖ ^ 2 - ‖alg.x (k + 1) - xm‖ ^ 2 + (k + 1) * s ^ 2) / (2 * (k + 1) * (s / alg.G)) := by
-      apply (le_div_iff' hpos₁').mpr h₂'
+      apply (le_div_iff₀' hpos₁').mpr h₂'
     _ ≤ (‖x₀ - xm‖ ^ 2 + (↑k + 1) * s ^ 2) / (2 * (↑k + 1) * (s / ↑alg.G)) := by
       apply (div_le_div_right hpos₁').mpr; simp
     _ = alg.G * ‖x₀ - xm‖ ^ 2 / (2 * (k + 1) * s) + alg.G * s / 2 := by
       field_simp; ring
 
 
-/-- convergence with diminishing step size --/
+/- convergence with diminishing step size -/
+include hm in
 theorem subgradient_method_diminishing_step_size
     (ha' : Tendsto alg.a atTop (𝓝 0))
     (ha'' : Tendsto (fun (k : ℕ) => (Finset.range (k + 1)).sum alg.a) atTop atTop) :
@@ -568,7 +572,7 @@ theorem subgradient_method_diminishing_step_size
     calc
       _ ≤ (‖x₀ - xm‖ ^ 2 + ↑alg.G ^ 2 * Finset.sum (Finset.range (b + 1)) fun i => alg.a i ^ 2)
             / (2 * Finset.sum (Finset.range (b + 1)) alg.a) := by
-          apply (le_div_iff' hpos).mpr; simp at hb₁; apply hb₁
+          apply (le_div_iff₀' hpos).mpr; simp at hb₁; apply hb₁
       _ = ‖x₀ - xm‖ ^ 2 / (2 * Finset.sum (Finset.range (b + 1)) alg.a) + (↑alg.G ^ 2 *
             Finset.sum (Finset.range (b + 1)) fun i => alg.a i ^ 2) /
             (2 * Finset.sum (Finset.range (b + 1)) alg.a) := by
