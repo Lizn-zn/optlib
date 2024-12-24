@@ -20,6 +20,7 @@ import Convex.Algorithm.GradientDescent
 
 -/
 
+
 section Strongly_Convex_Gradient_Descent
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
@@ -28,6 +29,7 @@ variable {f : E → ℝ} {m : ℝ} {f' : E → E} {xm x₀ : E} {x : ℕ → E}
 variable {a : ℝ} {x y : E} {l : NNReal}
 
 open Set
+
 
 theorem Strong_convex_Lipschitz_smooth (hsc: StrongConvexOn univ m f) (mp : m > 0)
     (hf : ∀ x, HasGradientAt f (f' x) x) (h₂ : LipschitzWith l f') (hl : l > (0 : ℝ)):

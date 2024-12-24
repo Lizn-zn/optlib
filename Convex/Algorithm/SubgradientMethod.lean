@@ -377,11 +377,11 @@ theorem subgradient_method_fixed_distance {s : ℝ}
 /- convergence with diminishing step size -/
 include hm in
 theorem subgradient_method_diminishing_step_size
-    (ha' : Tendsto alg.a atTop (𝓝 0))
+    (ha' : Tendsto alg.a atTop (nhds 0))
     (ha'' : Tendsto (fun (k : ℕ) => (Finset.range (k + 1)).sum alg.a) atTop atTop) :
-    Tendsto (fun k => sInf {f (alg.x i) | i ∈ Finset.range (k + 1)}) atTop (𝓝 (f xm)) := by
+    Tendsto (fun k => sInf {f (alg.x i) | i ∈ Finset.range (k + 1)}) atTop (nhds (f xm)) := by
   have h₁ : Tendsto (fun k => sInf {f (alg.x i) | i ∈ Finset.range (k + 1)} - f xm)
-      atTop (𝓝 0) := by
+      atTop (nhds 0) := by
     simp [tendsto_def]; simp [tendsto_def] at ha' ha''
     intro s hs
     simp [mem_nhds_iff,Metric.isOpen_iff] at hs ha'

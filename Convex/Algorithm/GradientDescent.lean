@@ -201,7 +201,7 @@ lemma gradient_method (hfun: ConvexOn ℝ Set.univ f) (step₂ : alg.a ≤ 1 / a
   have tα : 1 / ((2 : ℝ) * (k + 1) * alg.a) > 0 := by
     have : alg.a > 0 := alg.step₁
     positivity
-  obtain xdescent := point_descent_for_convex hfun step₂
+  obtain xdescent := point_descent_for_convex hfun step₂ (xm := xm)
   have mono : ∀ k : ℕ, f (alg.x (k + 1)) ≤ f (alg.x k) := by
     intro k
     rw [alg.update k]
@@ -234,7 +234,7 @@ lemma gradient_method (hfun: ConvexOn ℝ Set.univ f) (step₂ : alg.a ≤ 1 / a
               rw [add_sub_right_comm]; linarith
           _ = 1 / (2 * alg.a) * (‖x₀ - xm‖ ^ 2 - ‖alg.x (j.succ + 1) - xm‖ ^ 2)  := by
               ring_nf; simp; left; ring_nf
-  obtain sum_prop_1 := mono_sum_prop mono
+  obtain sum_prop_1 := mono_sum_prop mono (xm := xm)
   specialize sum_prop_1 k
   specialize sum_prop k
   have h : f (alg.x (k + 1)) - f xm ≤ 1 / (2 * (k + 1) * alg.a) *

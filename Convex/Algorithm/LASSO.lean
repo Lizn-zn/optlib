@@ -365,7 +365,7 @@ instance {A : Matrix (Fin m) (Fin n) ℝ} {b : (Fin m) → ℝ} {μ : ℝ} {μpo
         rw [mul_le_mul_left]
         calc
           (Finset.sum Finset.univ fun i ↦ |(|y i| - |x i|)|) ≤
-              (Finset.sum Finset.univ (fun _ ↦ (ε / n / μ))) := by
+              (Finset.sum (α := Fin n) Finset.univ (fun _ ↦ (ε / n / μ))) := by
             apply Finset.sum_le_sum
             exact fun i _ => le i
           _ = (n * (ε / n / μ)) := by simp
