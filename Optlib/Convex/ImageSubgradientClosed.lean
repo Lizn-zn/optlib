@@ -1,5 +1,5 @@
 import Optlib.Function.Proximal
-import Mathlib.Topology.Instances.EReal
+import Mathlib.Topology.Instances.EReal.Lemmas
 
 open Set InnerProductSpace Topology Filter
 

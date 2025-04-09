@@ -134,7 +134,7 @@ variable (hf : ConvexOn ℝ univ f)
 
 open Finset
 
-class subgradient_method (f : E → ℝ) (x₀ : E) :=
+class subgradient_method (f : E → ℝ) (x₀ : E) where
   (x g : ℕ → E)
   (a : ℕ → ℝ) (ha : ∀ n, a n > 0)
   (G : NNReal) (lipschitz : LipschitzWith G f)
@@ -180,7 +180,7 @@ theorem subgradient_method_converge:
         rw[mul_comm]; simp
         rcases h' (alg.hg i) with hi
         apply mul_le_mul_of_nonneg_right _ (sq_nonneg _)
-        · apply pow_le_pow_left; apply norm_nonneg; apply hi
+        · apply pow_le_pow_left₀; apply norm_nonneg; apply hi
       have inq₂: 2 * alg.a i * (sInf {x | ∃ i ∈ Finset.range (k + 1), f (alg.x i) = x} - f xm)
           ≤ 2 * inner (alg.x i - xm) (alg.a i • alg.g i) := by
         rw [mul_assoc]; apply (mul_le_mul_left two_pos).mpr
@@ -367,7 +367,7 @@ theorem subgradient_method_fixed_distance {s : ℝ} (hm : IsMinOn f univ xm)
     _ ≤ (‖x₀ - xm‖ ^ 2 - ‖alg.x (k + 1) - xm‖ ^ 2 + (k + 1) * s ^ 2) / (2 * (k + 1) * (s / alg.G)) := by
       apply (le_div_iff₀' hpos₁').mpr h₂'
     _ ≤ (‖x₀ - xm‖ ^ 2 + (↑k + 1) * s ^ 2) / (2 * (↑k + 1) * (s / ↑alg.G)) := by
-      apply (div_le_div_right hpos₁').mpr; simp
+      apply (div_le_div_iff_of_pos_right hpos₁').mpr; simp
     _ = alg.G * ‖x₀ - xm‖ ^ 2 / (2 * (k + 1) * s) + alg.G * s / 2 := by
       field_simp; ring
 
@@ -497,7 +497,7 @@ lemma subgradient_method_diminishing_step_size (hm : IsMinOn f univ xm)
             · rcases hasA b hba₁ with h₃; simp [s₁] at h₃
               obtain h₃₁ := (div_lt_iff₀ εpos).mp h₃
               obtain h₃₂ := (div_lt_iff₀' hpos'').mpr h₃₁
-              obtain h₃₃ := (div_lt_div_right zero_lt_four).mpr h₃₂
+              obtain h₃₃ := (div_lt_div_iff_of_pos_right zero_lt_four).mpr h₃₂
               calc
                 _ = (2 * ↑alg.G ^ 2 * Finset.sum (Finset.range (a₂ + 1)) fun x => alg.a x ^ 2) /
                       Finset.sum (Finset.range (b + 1)) alg.a / 4 := by field_simp;ring

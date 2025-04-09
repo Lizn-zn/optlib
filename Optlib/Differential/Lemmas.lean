@@ -164,7 +164,7 @@ lemma continuous_positive_direction [NormedSpace ℝ E] (h : ContinuousAt f x) (
   obtain ⟨δ, hδ1, hδ2⟩ := continuous_positive_neighborhood h hx
   by_cases hv : v = 0
   · rw [hv]; simp; use 1; constructor; linarith; intro t _ _; exact hx
-  have : ‖v‖ > 0 := norm_pos_iff'.mpr hv
+  have : ‖v‖ > 0 := norm_pos_iff.mpr hv
   use δ / (2 * ‖v‖); constructor; positivity
   intro y hy
   obtain hδ2 := hδ2 (x + y • v)
@@ -336,7 +336,7 @@ lemma gradient_of_const_mul_norm (l : ℝ) (z : E) :
   let h := fun x : E => ‖x‖ ^ 2
   have e1 : (l • z) = (l / 2) • (2 : ℝ) • z := by rw [smul_smul]; simp
   have : (fun (x : E) => l / 2 * ‖x‖ ^ 2) = (fun (x : E) => (l / 2) • h x) := by
-    ext; simp
+    ext; simp; simp only [true_or, h]
   have h1 : HasGradientAt h ((2 : ℝ) • z) z := gradient_norm_sq_eq_two_self z
   rw [this, e1]; refine HasGradientAt.const_smul' (l / 2) h1
 
@@ -369,7 +369,7 @@ lemma gradient_of_sq : ∀ u : E, HasGradientAt (fun u ↦ ‖u - x‖ ^ 2 / 2) 
     show |‖v‖ ^ 2 - ‖u‖ ^ 2 - inner ((2 : ℝ) • u) (v - u)| / 2 ≤ e * ‖u - v‖
     calc
       |‖v‖ ^ 2 - ‖u‖ ^ 2 - inner ((2 : ℝ) • u) (v - u)| / 2 ≤ (e * ‖u - v‖) / 2 := by
-        rw [div_le_div_right]
+        rw [div_le_div_iff_of_pos_right]
         apply eq1; rw [hu, hv]; simp; apply dles; simp
       _ ≤ e * ‖u - v‖ := by
         field_simp
@@ -449,7 +449,9 @@ lemma expansion (hf : ∀ x : E, HasGradientAt f (f' x) x) (x p : E) :
       rw [one_smul] at this; exact this
   have e1 : f (x + p) = g 1 := by simp [g]
   have e2 : f x = g 0 := by simp [g]
-  have e3 : ∀ t, inner (f' (x + t • p)) p = g' t := by simp []
+  have e3 : ∀ t, inner (f' (x + t • p)) p = g' t := by
+    intro t
+    simp only [one_smul, zero_smul, add_zero, g, g']
   rw [e1, e2]
   have : ∃ c ∈ Set.Ioo 0 1, g' c = (g 1 - g 0) / (1 - 0) := by
     apply exists_hasDerivAt_eq_slope g g' (by norm_num)
@@ -486,7 +488,9 @@ lemma general_expansion (x p : E) (hf : ∀ y ∈ Metric.closedBall x ‖p‖, H
       rw [one_smul] at this; exact this
   have e1 : f (x + p) = g 1 := by simp [g]
   have e2 : f x = g 0 := by simp [g]
-  have e3 : ∀ t, inner (f' (x + t • p)) p = g' t := by simp []
+  have e3 : ∀ t, inner (f' (x + t • p)) p = g' t := by
+    intro t
+    simp only [one_smul, zero_smul, add_zero, g, g']
   rw [e1, e2]
   have : ∃ c ∈ Set.Ioo 0 1, g' c = (g 1 - g 0) / (1 - 0) := by
     apply exists_hasDerivAt_eq_slope g g' (by norm_num)

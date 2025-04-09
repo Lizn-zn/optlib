@@ -318,7 +318,7 @@ theorem convex_to_lower {l : ℝ} (h₁ : ∀ x : E, HasGradientAt f (f' x) x)
       _ = l / 2 * ‖z₂‖ ^ 2 -(l / 2 * ‖z₁‖ ^ 2 - f z₁ + inner (f' s) z₁ +
         (l * (inner z₁ z₂ - ‖z₁‖ ^ 2) - inner (f' z₁ - f' s) (z₂ - z₁))) := by
         rw [inner_sub_left, inner_smul_left]
-        simp; rw [inner_sub_right, real_inner_self_eq_norm_sq];left ; simp
+        simp; rw [inner_sub_right, real_inner_self_eq_norm_sq];
       _ = f z₁ - inner (f' s) z₁ + inner (f' z₁ - f' s) (z₂ - z₁) +
         l / 2 * (‖z₂‖ ^ 2  - 2 * inner z₂ z₁ + ‖z₁‖ ^ 2) := by
           field_simp; ring_nf; rw [real_inner_comm]
@@ -379,7 +379,7 @@ theorem convex_to_lower {l : ℝ} (h₁ : ∀ x : E, HasGradientAt f (f' x) x)
   have hh₂: (1 / (2 * l)) * ‖f' x - f' y‖ ^ 2 ≤ f x - f y - inner (f' y) (x - y) := by
     calc
       (1 / (2 * l)) * ‖f' x - f' y‖ ^ 2 ≤ fs y x -fs y y := by
-        have : f' x - f' y = fs' y x := by simp
+        have : f' x - f' y = fs' y x := by simp only [mem_univ, smul_eq_mul, tsub_le_iff_right, forall_const, true_and, gt_iff_lt, implies_true, one_div, mul_inv_rev, fs, gs, fs', gs']
         rw [this]
         linarith [hfy₄]
       _ = f x - f y - inner (f' y) (x - y) := by

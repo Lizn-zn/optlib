@@ -88,13 +88,13 @@ noncomputable section gradient_descent
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
 
-class GradientDescent (f : E → ℝ) (f' : E → E) (x0 : E) :=
+class GradientDescent (f : E → ℝ) (f' : E → E) (x0 : E) where
   (x : ℕ → E) (a : ℕ → ℝ) (l : NNReal)
   (diff : ∀ x₁, HasGradientAt f (f' x₁) x₁) (smooth : LipschitzWith l f')
   (update : ∀ k : ℕ, x (k + 1) = x k - a k • f' (x k))
   (hl : l > 0) (step₁ : ∀ k, a k > 0) (initial : x 0 = x0)
 
-class Gradient_Descent_fix_stepsize (f : E → ℝ) (f' : E → E) (x0 : E) :=
+class Gradient_Descent_fix_stepsize (f : E → ℝ) (f' : E → E) (x0 : E) where
   (x : ℕ → E) (a : ℝ) (l : NNReal)
   (diff : ∀ x₁, HasGradientAt f (f' x₁) x₁) (smooth : LipschitzWith l f')
   (update : ∀ k : ℕ, x (k + 1) = x k - a • f' (x k))

@@ -52,7 +52,8 @@ theorem Strong_convex_Lipschitz_smooth (hsc: StrongConvexOn univ m f) (mp : m > 
       use cov
   have convh : ConvexOn ℝ univ h := by
     have (x : E) : h x = phi x := by
-        field_simp [phi, h]; ring_nf
+        field_simp [phi, h];
+        unfold g; ring_nf
     rw [ConvexOn]; use cov; intro x xin y yin a b apos bpos absum1
     rw [this, this, this]
     rw [ConvexOn] at convphi
@@ -83,7 +84,7 @@ theorem Strong_convex_Lipschitz_smooth (hsc: StrongConvexOn univ m f) (mp : m > 
       field_simp; rw [add_comm]
       calc
         _ ≤ ((m + l) * inner u v) / (m + l) := by
-          rw [div_le_div_right]; apply h0; apply mlpos
+          rw [div_le_div_iff_of_pos_right]; apply h0; apply mlpos
         _ = inner u v := by field_simp
       apply coef
     show inner alpha beta ≥ m * l / (m + l) * ‖beta‖ ^ 2 + 1 / (m + l) * ‖alpha‖ ^ 2
@@ -197,7 +198,7 @@ lemma gradient_method_strong_convex (hm : m > 0) (min : IsMinOn f univ xm)
           rw [mul_le_mul_right]; linarith [step₂, alg.step₁];
           apply mul_pos <;> linarith
         _ ≤ (m + alg.l) ^ 2 / (m + alg.l) := by
-          field_simp; rw [div_le_div_right this]
+          field_simp; rw [div_le_div_iff_of_pos_right this]
           ring_nf
           calc
             _ ≤ m * alg.l * 4 + (m - alg.l) ^ 2 := by

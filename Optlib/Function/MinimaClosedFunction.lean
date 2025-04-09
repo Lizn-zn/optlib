@@ -82,7 +82,7 @@ theorem IsMinOn.of_isCompact_preimage (hf : LowerSemicontinuous f) {y : F}
     apply Tendsto.comp cfx (StrictMono.tendsto_atTop mono)
   have inepi : (x', sInf {f x | x ∈ (f ⁻¹' Set.Iic y)}) ∈ {p : E × F | f p.1 ≤ p.2} :=
     (IsClosed.isSeqClosed (LowerSemicontinuous.isClosed_epigraph hf))
-      (fun n => Eq.le (by rfl)) (Tendsto.prod_mk_nhds cxk cfxk)
+      (fun n => Eq.le (by rfl)) (Filter.Tendsto.prodMk_nhds cxk cfxk)
   use x'; intro xx _
   apply le_of_eq_of_le
   · apply le_antisymm inepi (sInf_le (Exists.intro x' ⟨xsub', rfl⟩))

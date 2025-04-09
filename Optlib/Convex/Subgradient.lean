@@ -567,7 +567,7 @@ theorem SubderivAt.add {f₁ f₂ : E → ℝ} (h₁ : ConvexOn ℝ univ f₁) (
     use (toDual ℝ ℝ).symm f2
     intro p
     have : ((toDual ℝ ℝ).symm f2) * p.2 = inner (((toDual ℝ ℝ).symm f2)) p.2 := by
-      simp [f2]
+      unfold f2; simp only [RCLike.inner_apply, conj_trivial]; simp [mul_comm]
     have : ((toDual ℝ ℝ).symm f2) * p.2 = f2 p.2 := by
       rw [this]
       simp only [toDual_symm_apply, ContinuousLinearMap.coe_comp', Function.comp_apply,
@@ -685,7 +685,7 @@ theorem SubderivAt_abs (x : ℝ) :
           calc
             0 ≥ x + g * (-x):= by
               simp only [abs_zero, zero_sub, abs_pos_of_pos, abs_of_pos hx] at hg
-              have : inner g (-x) = g * (-x)  := by rfl
+              have : inner g (-x) = g * (-x)  := by simp [mul_comm]
               rwa [this] at hg
             _ = x * (1 - g) := by ring
             _ > 0 := mul_pos hx (by linarith)
@@ -713,7 +713,7 @@ theorem SubderivAt_abs (x : ℝ) :
           _ ≤ 1 := by linarith [hg]
       linarith
     specialize hg 0
-    have eq1 : inner g (-x) = g * (-x) := rfl
+    have eq1 : inner g (-x) = g * (-x) := by simp [mul_comm]
     have eq2 : -x + g * -x = -x * (1 + g) := by ring
     simp only [abs_zero, zero_sub, abs_of_neg hx, eq1, eq2] at hg
     have : -x * (1 + g) > 0 := by

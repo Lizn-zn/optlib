@@ -101,7 +101,7 @@ theorem prox_set_compact_of_lowersemi (f : E → ℝ) (hc : LowerSemicontinuous 
               rw [add_right_comm, mul_comm]; simp; linarith [sq_nonneg b]
           calc
             0 ≤ a ^ 2 / 2 := by linarith [sq_nonneg a]
-            _ ≤ b * 2 / 2 := by rw [div_le_div_right]; exact h1; linarith
+            _ ≤ b * 2 / 2 := by rw [div_le_div_iff_of_pos_right]; exact h1; linarith
             _ ≤ b + 1 := by simp
           linarith
         apply aux ieq
@@ -119,10 +119,12 @@ theorem prox_set_compact_of_lowersemi (f : E → ℝ) (hc : LowerSemicontinuous 
     apply Tendsto.comp cfx (StrictMono.tendsto_atTop mono)
   have inepi : (x', sInf ImS) ∈ epi := by
     let p := fun c ↦ (((fun n ↦ xn n) ∘ k) c, (g ∘ xn ∘ k) c)
-    have pnin :  ∀ c : ℕ, p c ∈ epi := by simp [epi]
+    have pnin :  ∀ c : ℕ, p c ∈ epi := by
+      intro c
+      simp [epi, p]
     apply IsClosed.isSeqClosed epi_closed pnin
     show Tendsto (fun c ↦ (((fun n ↦ xn n) ∘ k) c, (g ∘ xn ∘ k) c)) atTop (𝓝 (x', sInf ImS))
-    apply Tendsto.prod_mk_nhds cxk cfxk
+    apply Filter.Tendsto.prodMk_nhds cxk cfxk
   have minima_ieq : g x' ≤ sInf ImS := inepi
   have minima : ∀ w : E, g x' ≤ g w := by
     intro w
@@ -234,7 +236,7 @@ theorem prox_set_compact_of_convex (f : E → ℝ) (hc : ContinuousOn f univ)
           rw [add_assoc, ← add_mul, ← inner_add_left, add_comm, real_inner_comm]; simp
         rw [eq] at ieq
         have ieq2 : ‖u - (x - a)‖ ^ 2 ≤ ‖z - (x - a)‖ ^ 2 + 2 := by
-          field_simp at ieq; rw [div_le_div_right, sub_add, sub_le_iff_le_add] at ieq
+          field_simp at ieq; rw [div_le_div_iff_of_pos_right, sub_add, sub_le_iff_le_add] at ieq
           rw [add_right_comm, add_comm (‖z - x‖ ^ 2), norm_sub_rev z x] at ieq
           rw [real_inner_comm, ← norm_sub_sq_real, ← sub_add a, sub_add_comm] at ieq
           rw [sub_add] at ieq; exact ieq; norm_num
@@ -260,10 +262,12 @@ theorem prox_set_compact_of_convex (f : E → ℝ) (hc : ContinuousOn f univ)
     apply Tendsto.comp cfx (StrictMono.tendsto_atTop mono)
   have inepi : (x', sInf ImS) ∈ epi := by
     let p := fun c ↦ (((fun n ↦ xn n) ∘ k) c, (g ∘ xn ∘ k) c)
-    have pnin :  ∀ c : ℕ, p c ∈ epi := by simp [epi]
+    have pnin :  ∀ c : ℕ, p c ∈ epi := by
+      intro c
+      simp [epi, p]
     apply IsClosed.isSeqClosed epi_closed pnin
     show Tendsto (fun c ↦ (((fun n ↦ xn n) ∘ k) c, (g ∘ xn ∘ k) c)) atTop (𝓝 (x', sInf ImS))
-    apply Tendsto.prod_mk_nhds cxk cfxk
+    apply Filter.Tendsto.prodMk_nhds cxk cfxk
   have minima_ieq : g x' ≤ sInf ImS := inepi
   have minima : ∀ w : E, g x' ≤ g w := by
       intro w
@@ -367,7 +371,7 @@ lemma convex_of_norm_sq {s : Set E} (x : E) (conv: Convex ℝ s) :
     rw [absum1, one_smul, ← add_sub]
   rw [eq1]
   have ieq1 (u v : E) : ‖a • u + b • v‖ ^ 2 / 2 ≤ (a * ‖u‖ ^ 2 + b * ‖v‖ ^ 2) / 2 := by
-    rw [div_le_div_right, norm_add_sq_real, add_comm, ← add_assoc]
+    rw [div_le_div_iff_of_pos_right, norm_add_sq_real, add_comm, ← add_assoc]
     rw [norm_smul, norm_smul, mul_pow, mul_pow]; simp
     nth_rw 3 [← mul_one a]; nth_rw 3 [← one_mul b]
     rw [← absum1]; ring_nf; rw [add_right_comm]

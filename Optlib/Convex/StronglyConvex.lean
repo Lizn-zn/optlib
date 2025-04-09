@@ -99,7 +99,7 @@ lemma strongconvex_of_convex_add_sq (f : E → ℝ) (x : E) (hfun : ConvexOn ℝ
     apply add_le_add
     · rw [← smul_eq_mul, ← smul_eq_mul]
       apply hfun yin zin anneg bnneg absum1
-    · field_simp; rw [div_le_div_right, add_sub]
+    · field_simp; rw [div_le_div_iff_of_pos_right, add_sub]
       have eq1 : a • y + b • z - x = a • (y - x) + b • (z - x) := by
         rw [smul_sub, smul_sub, add_comm_sub, sub_sub, ← add_smul, add_comm b a]
         rw [absum1, one_smul, ← add_sub]

@@ -386,7 +386,8 @@ theorem monotone_gradient_strict_convex (hs : Convex ℝ s)
     · rw [mul_ne_zero_iff]; constructor <;> linarith
     · exact eq3
   have zeq : z = x + b • (y - x) := by
-    nth_rw 1 [← one_smul ℝ x]; rw [← absum1, add_smul, smul_sub]; simp
+    nth_rw 1 [← one_smul ℝ x]; rw [← absum1, add_smul, smul_sub];
+      simp only [ne_eq, gt_iff_lt, smul_eq_mul, le_refl, ge_iff_le, Set.mem_Ioo, mul_eq_zero, add_add_sub_cancel, z]
   let u : E := z + d • (y - z)
   let v : E := x + c • (z - x)
   have ueq : u = x + (b + d) • (y - x) - d • b • (y - x) := by

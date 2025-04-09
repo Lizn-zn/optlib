@@ -21,7 +21,7 @@ section
 
 open Set
 
-class Nesterov (f : E → ℝ) (f' : E → E) (γ : ℕ+ → ℝ) (initial_point : E) :=
+class Nesterov (f : E → ℝ) (f' : E → E) (γ : ℕ+ → ℝ) (initial_point : E) where
   (x : ℕ → E) (y : ℕ+ → E) (v : ℕ → E) (l : NNReal)
   (diff : ∀ x₁, HasGradientAt f (f' x₁) x₁)
   (update1 : ∀ (k : ℕ+), y k = (1 - γ k) • x (k - 1) + γ k • v (k - 1))
@@ -180,7 +180,7 @@ theorem nesterov_algorithm_smooth (hfun: ConvexOn ℝ Set.univ f)
       apply div_pos (by linarith)
       apply sq_pos_of_ne_zero
       exact Nat.cast_add_one_ne_zero ↑k
-    rw [← div_le_div_right this, sub_div, mul_div_right_comm (1 - γ k)] at h4
+    rw [← div_le_div_iff_of_pos_right this, sub_div, mul_div_right_comm (1 - γ k)] at h4
     rw [← one_mul (f (alg.x k) - f xm), mul_div_right_comm 1] at h4
     rw [mul_div_right_comm (alg.l).1, mul_assoc, mul_comm (γ k ^ 2)] at h4
     rw [← mul_assoc, mul_div_assoc] at h4

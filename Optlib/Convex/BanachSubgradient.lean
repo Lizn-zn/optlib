@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Wanyi He, Chenyi Li, Zichen Wang
 -/
 import Mathlib.Analysis.NormedSpace.HahnBanach.Separation
-import Mathlib.LinearAlgebra.Dual
+import Mathlib.LinearAlgebra.Matrix.Dual
+import Mathlib.LinearAlgebra.QuadraticForm.Dual
 
 
 section
@@ -23,7 +24,7 @@ lemma EpigraphInterior_existence (hc : ContinuousOn f (interior s)) (hx : x ∈ 
     have h1 : IsOpen t := IsOpen.preimage continuous_fst isOpen_interior
     have h2: ContinuousOn (fun p : (E × ℝ) => f p.fst) t :=
       ContinuousOn.comp hc continuousOn_fst (fun ⦃x⦄ a => a)
-    apply ContinuousOn.isOpen_inter_preimage (h2.prod continuousOn_snd) h1 isOpen_lt_prod
+    apply ContinuousOn.isOpen_inter_preimage (h2.prodMk continuousOn_snd) h1 isOpen_lt_prod
   have h' : {p : E × ℝ| p.1 ∈ interior s ∧ f p.1 < p.2} ⊆ {p | p.1 ∈ s ∧ f p.1 ≤ p.2} :=
     fun p ⟨hp1, hp2⟩ => ⟨interior_subset hp1, le_of_lt hp2⟩
   apply interior_mono h'
@@ -60,7 +61,7 @@ lemma Continuous_epi_open {f₁ : E → ℝ} (hcon : ContinuousOn f₁ univ) :
   have : {(x, y) : E × ℝ | y > f₁ x} = {(x, y) : E × ℝ | x ∈ univ ∧ y > f₁ x} := by
     ext z; simp
   rw [this]
-  apply ContinuousOn.isOpen_inter_preimage (h2.prod continuousOn_snd) h1 isOpen_lt_prod
+  apply ContinuousOn.isOpen_inter_preimage (h2.prodMk continuousOn_snd) h1 isOpen_lt_prod
 
 end
 noncomputable section
@@ -181,6 +182,8 @@ theorem Banach_SubderivWithinAt.Nonempty (hf : ConvexOn ℝ s f)
       exact tendsto_const_nhds
     apply le_of_tendsto_of_tendsto' cleft ?_ hxn
     simp only [an, hfa]
+    unfold an at can2
+    rw [hfa] at can2
     exact can2
 
   have key2₁ : ∀ a ∈ (Epi f s), a.1 ∉ interior s → h' (a.1 - x) + f x ≤ a.2 := by
