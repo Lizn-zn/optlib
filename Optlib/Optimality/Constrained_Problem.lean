@@ -7,7 +7,7 @@ import Mathlib.Analysis.Convex.Cone.Basic
 import Mathlib.Analysis.Calculus.LocalExtr.Basic
 import Mathlib.Analysis.NormedSpace.HahnBanach.Separation
 import Mathlib.Data.Matrix.Rank
-import Mathlib.LinearAlgebra.FiniteDimensional
+import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
 import Mathlib.Analysis.Calculus.Implicit
 import Mathlib.Analysis.Calculus.MeanValue
 import Mathlib.Analysis.InnerProductSpace.Calculus
@@ -46,7 +46,7 @@ variable {τ σ : Finset ℕ}
   The equality constraints are a set of functions from a Hilbert space to ℝ.
   The inequality constraints are a set of functions from a Hilbert space to ℝ.
 -/
-structure Constrained_OptimizationProblem (E : Type _) (τ σ : Finset ℕ) :=
+structure Constrained_OptimizationProblem (E : Type _) (τ σ : Finset ℕ) where
   (domain : Set E)
   (equality_constraints : (i : ℕ) → E → ℝ)
   (inequality_constraints : (j : ℕ) → E → ℝ)
@@ -567,7 +567,7 @@ lemma StrictFderivAt_of_FderivAt_of_ContinuousAt
     with ⟨ε, ε0, hε⟩
   refine ⟨ε, ε0, ?_⟩
   rintro ⟨a, b⟩ h
-  rw [← ball_prod_same, prod_mk_mem_set_prod_eq] at h
+  rw [← ball_prod_same, Set.prodMk_mem_set_prod_eq] at h
   have hf' : ∀ x' ∈ Metric.ball x ε, ‖c' x' - c' x‖ ≤ μ := fun x' H' => by
     rw [← dist_eq_norm]
     exact le_of_lt (hε H').2
@@ -712,7 +712,7 @@ lemma LICQ_existZ (x : EuclideanSpace ℝ (Fin n)) (LIx : p.LICQ x)
 
 lemma mulVec_eq_toEuclidean {s : Type*} (M : Matrix s (Fin n) ℝ) (y : EuclideanSpace ℝ (Fin n)) :
     M *ᵥ y = (toEuclideanLin M) y := by
-  rw [Matrix.toEuclideanLin_apply]; ext j; simp [Matrix.mulVec, Matrix.dotProduct]
+  rw [Matrix.toEuclideanLin_apply]; ext j; simp [Matrix.mulVec, dotProduct]
 
 lemma inj_iff_full_finrank {s t : Type*} {M : Matrix s t ℝ} [Fintype s] [Fintype t]
     (hn : Fintype.card s = Fintype.card t) :
@@ -794,7 +794,7 @@ lemma LICQ_strictfderiv_Ax_elem {x : EuclideanSpace ℝ (Fin n)}
   rw [eventually_iff, Metric.mem_nhds_iff] at h; rcases h with ⟨ε, _, _⟩
   intro i; by_cases hi : i.1 ∈ τ
   · rw [ceq, Jzeq, Aeq]; simp [hi]
-    rw [HasStrictFDerivAt];
+    rw [hasStrictFDerivAt_iff_isLittleO]
     have eq : (fun p_1 : EuclideanSpace ℝ (Fin n) × EuclideanSpace ℝ (Fin n) ↦
         p.equality_constraints i.1 p_1.1 - p.equality_constraints i.1 p_1.2 -
         ((EuclideanSpace.proj i).comp (LinearMap.toContinuousLinearMap (toEuclideanLin fun i ↦ gradc x i)))
@@ -813,7 +813,7 @@ lemma LICQ_strictfderiv_Ax_elem {x : EuclideanSpace ℝ (Fin n)}
       rw [Finset.mem_filter] at hi2
       exact hi2.1
     rw [ceq, Jzeq, Aeq]; simp [hi]
-    rw [HasStrictFDerivAt];
+    rw [hasStrictFDerivAt_iff_isLittleO];
     have eq : (fun p_1 : EuclideanSpace ℝ (Fin n) × EuclideanSpace ℝ (Fin n) ↦
         p.inequality_constraints i.1 p_1.1 - p.inequality_constraints i.1 p_1.2 -
         ((EuclideanSpace.proj i).comp (LinearMap.toContinuousLinearMap (toEuclideanLin fun i ↦ gradc x i)))
@@ -983,7 +983,13 @@ lemma LICQ_tendsto {x : EuclideanSpace ℝ (Fin n)} {m N : ℕ}
     have neq : ‖(i : ℝ) • (d i - x)‖ ≠ 0 := by
       rw [norm_smul]; apply mul_ne_zero; simp; linarith [Nat.lt_of_add_one_le igeN.2]
       specialize dne i igeN.2; simp; apply sub_ne_zero_of_ne dne
-    field_simp [deriv', φ, neq]; apply eq_lemma neq
+    field_simp [deriv', φ, neq];
+    have h' : i ≠ 0 ∧ d i - x ≠ 0 := by
+      simp [norm_eq_zero] at neq
+      simp only [ne_eq, deriv', φ, NMx]
+      exact neq
+    simp only [h']
+    apply eq_lemma (z := v) neq
   obtain lim' := Filter.Tendsto.congr' eq5 lim
   refine Filter.Tendsto.of_tendsto_comp lim' ?_
   simp only [φ]; exact comap2 vne0
@@ -1032,11 +1038,11 @@ theorem LICQ_linearized_feasible_directions_sub_posTangentCone
     fun z ↦ (fun i ↦ gradc z i) -- compose the gradient matrix
   let Jz : EuclideanSpace ℝ (Fin n) → EuclideanSpace ℝ (Fin n) →L[ℝ] EuclideanSpace ℝ (p.active_set x) :=
     fun z ↦ (LinearMap.toContinuousLinearMap (toEuclideanLin (A z))) -- change the Jacobi into linear transformation
-  have cgrad_atx : Jz x = (LinearMap.toContinuousLinearMap (toEuclideanLin Ax)) := by simp [Jz, A, gradc] -- A x = Ax
+  have cgrad_atx : Jz x = (LinearMap.toContinuousLinearMap (toEuclideanLin Ax)) := by simp only [Nat.cast_one, m, Ax, gradc, Jz, A]; -- A x = Ax
 
   have Rzgrad : HasStrictFDerivAt Rz Mx x := by
     simp only [Rz, Ax]
-    apply HasStrictFDerivAt.prod
+    apply HasStrictFDerivAt.prodMk
     · rw [← cgrad_atx]
       rw [hasStrictFDerivAt_euclidean]
       refine LICQ_strictfderiv_Ax_elem c ?_ gradc ?_ A ?_ Jz ?_ conte conti
@@ -1044,7 +1050,7 @@ theorem LICQ_linearized_feasible_directions_sub_posTangentCone
     · let N : EuclideanSpace ℝ (Fin n) →L[ℝ] (Fin (n - m) → ℝ) :=
         (LinearMap.toContinuousLinearMap (toEuclideanLin Zᵀ))
       show HasStrictFDerivAt (fun y : EuclideanSpace ℝ (Fin n) ↦ Zᵀ *ᵥ (y - x)) N x
-      rw [HasStrictFDerivAt]
+      rw [hasStrictFDerivAt_iff_isLittleO]
       have aux : (fun p : EuclideanSpace ℝ (Fin n) × EuclideanSpace ℝ (Fin n)
           ↦ Zᵀ *ᵥ (p.1 - x) - Zᵀ *ᵥ (p.2 - x) - N (p.1 - p.2)) = 0 := by
         ext y j; rw [← mulVec_sub, sub_sub, add_sub_cancel]; rw [mulVec_eq_toEuclidean]
@@ -1074,6 +1080,7 @@ theorem LICQ_linearized_feasible_directions_sub_posTangentCone
     simp [m]
     obtain hAx := LICQ_Axfullrank x LIx; simp at hAx
     show Ax.rank = (active_set x).card; apply hAx; simp only [Ax]
+    simp only [gradc, Jz, Mx, Ax, A, m, Rz, c]
   have Mxsurj : LinearMap.range Mx = ⊤ := by
     show LinearMap.range (Mx : EuclideanSpace ℝ (Fin n) →ₗ[ℝ] EuclideanSpace ℝ (p.active_set x) × (Fin (n - m) → ℝ)) = ⊤
     rw [← LinearMap.ker_eq_bot_iff_range_eq_top_of_finrank_eq_finrank]
@@ -1113,7 +1120,7 @@ theorem LICQ_linearized_feasible_directions_sub_posTangentCone
       have iina : i ∈ (p.active_set x) := by simp [active_set, hi]
       obtain h := hvh1 i hi
       obtain eq := Axroweq ⟨i, iina⟩; simp [c, hi, gradc] at eq
-      rw [eq]; simp; right; apply h
+      rw [eq]; simp; right; simp at h; rw [dotProduct_comm, dotProduct]; apply h
     constructor
     · rw [hdomain]; simp
     · intro j hj
@@ -1122,11 +1129,12 @@ theorem LICQ_linearized_feasible_directions_sub_posTangentCone
         have : j ∈ τ ∩ σ := by simp [hj, hh]
         rw [p.eq_ine_not_intersect] at this; tauto
       by_cases hj1 : j ∈ p.active_set x
-      · have jin : j ∈ σ ∩ (p.active_set x) := by simp [hj1, hj]
+      · have jin : j ∈ σ ∩ (p.active_set x) := by simp [hj1, hj];
         obtain h := hvh2 j jin
         obtain eq := Axroweq ⟨j, hj1⟩; simp [c, hj1, notin, gradc] at eq
         rw [eq]; field_simp
-        rw [div_nonneg_iff]; left; simp at h; simp [dotProduct, h]
+        rw [div_nonneg_iff]; left; simp at h; rw [dotProduct_comm]; simp [dotProduct]
+        apply h
       · specialize inactive j; simp [hj, hj1] at inactive
         specialize inactive (d nn)
         specialize dtendx nn (le_of_max_le_right hnn); rw [← dist_eq_norm] at dtendx
@@ -1181,7 +1189,7 @@ lemma subtype_sum (σ τ : Finset ℕ) (f : σ → EuclideanSpace ℝ (Fin n))
     congr; ext i; rw [h2]
   rw [this]; simp [h3]
   let f₁ : ℕ → EuclideanSpace ℝ (Fin n):= fun i => if h : i ∈ σ then f ⟨i, h⟩ else 0
-  have eq1 : ∑ i ∈ σ.attach, f i = ∑ i in σ, f₁ i := by
+  have eq1 : ∑ i ∈ σ.attach, f i = ∑ i ∈ σ, f₁ i := by
     simp [f₁]; nth_rw 2 [← Finset.sum_attach]; congr; simp
   have eq2 : ∑ i ∈ (σ ∩ τ).attach,
       f {val := i.1, property := by obtain hi := i.2; rw [Finset.mem_inter] at hi; exact hi.1} =
@@ -1389,7 +1397,7 @@ theorem Linear_linearized_feasible_directions_eq_posTangentCone
     linarith
   constructor
   · apply Filter.Tendsto.atTop_div_const ht_
-    apply tendsto_atTop_add_nonneg_right'
+    apply Filter.Tendsto.atTop_add_zero_eventuallyLE
     · exact tendsto_natCast_atTop_atTop
     apply Filter.Eventually.of_forall; exact fun x ↦ zero_le_one' ℝ
   apply tendsto_atTop_of_eventually_const (i₀ := 1)

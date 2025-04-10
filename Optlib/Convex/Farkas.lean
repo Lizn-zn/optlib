@@ -1,6 +1,6 @@
 /-
 Copyright (c) 2024 Shengyang Xu, Chenyi Li. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
+Released under Apache 2.0 license as described ∈ the file LICENSE.
 Authors: Shengyang Xu, Chenyi Li
 -/
 import Mathlib.Analysis.Convex.Cone.Basic
@@ -8,7 +8,7 @@ import Mathlib.Analysis.Calculus.LocalExtr.Basic
 import Mathlib.Analysis.NormedSpace.HahnBanach.Separation
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Data.Matrix.Rank
-import Mathlib.LinearAlgebra.FiniteDimensional
+import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
 import Optlib.Differential.Calculation
 import Optlib.Convex.ClosedCone
 
@@ -55,9 +55,9 @@ lemma polyhedra_iff_cone {σ : Finset ℕ} : ∀ (b : ℕ → EuclideanSpace ℝ
       simp [ht]; specialize cpos i ht; exact cpos; simp [ht]
     rw [h]
     let f : ℕ → EuclideanSpace ℝ (Fin n) := fun i ↦ (c1 i) • (b i)
-    have htt : ∑ x in σ.attach, f x = Finset.sum (attach σ) fun x => (c1 x • b x) := by simp [f]
+    have htt : ∑ x ∈ σ.attach, f x = Finset.sum (attach σ) fun x => (c1 x • b x) := by simp [f]
     have h1 : ∀ i : σ, c1 i • b i = c i • b i := by intro i; simp [c1]
-    have ht : ∑ x in σ.attach, f x = Finset.sum (attach σ) fun x => (c x • b x) := by
+    have ht : ∑ x ∈ σ.attach, f x = Finset.sum (attach σ) fun x => (c x • b x) := by
       rw [← htt]; apply Finset.sum_congr; simp
       intro i _; simp [f, c1]
     nth_rw 1 [Finset.sum_attach] at htt
@@ -67,7 +67,7 @@ lemma polyhedra_iff_cone {σ : Finset ℕ} : ∀ (b : ℕ → EuclideanSpace ℝ
   use c1; constructor
   · intro i _; exact cpos i
   let f : ℕ → EuclideanSpace ℝ (Fin n) := fun i ↦ (c i) • (b i)
-  have : ∑ x in σ.attach, f x = Finset.sum (attach σ) fun x => (c x • b x) := by simp [f]
+  have : ∑ x ∈ σ.attach, f x = Finset.sum (attach σ) fun x => (c x • b x) := by simp [f]
   rw [← h]; simp [c1]; rw [← this, Finset.sum_attach]
 
 private lemma leq_tendsto_zero {a x : ℝ} (ha : a < 0) (h : ∀ t > 0, t * x > a) : 0 ≤ x := by
@@ -162,12 +162,21 @@ lemma general_polyhedra_is_polyhedra_empty (τ σ : Finset ℕ) (he : ¬(τ ∪ 
     ∃ μ c, {z | ∃ (lam : τ → ℝ), ∃ (mu : σ → ℝ), (∀ i, 0 ≤ mu i) ∧ z =
     Finset.sum univ (fun i ↦ lam i • a i) + Finset.sum univ (fun i ↦ mu i • b i)} =
     cone μ c := by
-  simp at he; rw [Finset.union_eq_empty] at he
+  simp at he;
+  have h1 : τ.attach = ∅ := by
+    simp only [attach_eq_empty_iff, he.1]
+  have h2 : σ.attach = ∅ := by
+    simp only [attach_eq_empty_iff, he.2]
   intro a b; simp [he]
   use ∅; use (fun _ => 0)
   simp [cone, quadrant]; ext x; simp; constructor
-  · intro x0; simp [x0]; use (fun _ => 0); simp
-  · intro cond; simp [cond.2]
+  · intro x0;
+    simp [h1, h2] at x0;
+    simp [x0];
+    exists (fun _ => 0); simp
+  · intro cond;
+    simp [h1, h2]
+    rw [cond.2]
 
 lemma general_polyhedra_is_polyhedra_ne (τ σ : Finset ℕ) (he : (τ ∪ σ).Nonempty) :
     ∀ (a : ℕ → EuclideanSpace ℝ (Fin n)), ∀ (b : ℕ → EuclideanSpace ℝ (Fin n)),
@@ -180,11 +189,11 @@ lemma general_polyhedra_is_polyhedra_ne (τ σ : Finset ℕ) (he : (τ ∪ σ).N
   let τ2 := Finset.image (fun x => x + 2 * m) τ
   let μ := σ ∪ τ1 ∪ τ2
   have mt1emp : σ ∩ τ1 = ∅ := by
-    simp only [τ1]; apply s_inter_t1_empty he; simp
+    simp only [τ1]; apply s_inter_t1_empty he; simp [m]
   have mt2emp : σ ∩ τ2 = ∅ := by
-    simp only [τ2]; apply s_inter_t2_empty he; simp
+    simp only [τ2]; apply s_inter_t2_empty he; simp [m]
   have t1t2emp : τ1 ∩ τ2 = ∅ := by
-    simp only [τ1, τ2]; apply t1_inter_t2_empty he; simp
+    simp only [τ1, τ2]; apply t1_inter_t2_empty he; simp [m]
   have disj_st : Disjoint σ (τ1 ∪ τ2) := by
     rw [Finset.disjoint_iff_inter_eq_empty, Finset.inter_union_distrib_left]; simp [mt1emp, mt2emp]
   have disj_tt : Disjoint τ1 τ2 := by
@@ -219,10 +228,10 @@ lemma general_polyhedra_is_polyhedra_ne (τ σ : Finset ℕ) (he : (τ ∪ σ).N
       simp [hs, ht1, ht2]
     use w; use wnneg
     rw [xeq, tau_decpn]
-    have eq1 : ∑ x : { x // x ∈ σ }, mu x • b x = ∑ x in σ, (fun y => w y • c y) x := by
+    have eq1 : ∑ x : { x // x ∈ σ }, mu x • b x = ∑ x ∈ σ, (fun y => w y • c y) x := by
       nth_rw 2 [← Finset.sum_attach]; simp; congr
       ext x j; simp [w, c, cσ]
-    have eq2 : ∑ x : τ, (fun y => lamp y • cτ1 y) x = ∑ x in τ1, (fun y => w y • c y) x := by
+    have eq2 : ∑ x : τ, (fun y => lamp y • cτ1 y) x = ∑ x ∈ τ1, (fun y => w y • c y) x := by
       rw [shift_sum τ m (fun y => lamp y • cτ1 y)]
       nth_rw 2 [← Finset.sum_attach]; simp; congr
       ext x j
@@ -230,7 +239,7 @@ lemma general_polyhedra_is_polyhedra_ne (τ σ : Finset ℕ) (he : (τ ∪ σ).N
         contrapose mt1emp; simp at mt1emp; push_neg; rw [← Finset.nonempty_iff_ne_empty]
         use x; simp [τ1, mt1emp, x.2]
       simp [w, c, hns]
-    have eq3 : ∑ x : τ, (fun y => lamn y • cτ2 y) x = ∑ x in τ2, (fun y => w y • c y) x := by
+    have eq3 : ∑ x : τ, (fun y => lamn y • cτ2 y) x = ∑ x ∈ τ2, (fun y => w y • c y) x := by
       rw [shift_sum τ (2 * m) (fun y => lamn y • cτ2 y)]
       nth_rw 2 [← Finset.sum_attach]; simp; congr
       ext x j
@@ -250,10 +259,10 @@ lemma general_polyhedra_is_polyhedra_ne (τ σ : Finset ℕ) (he : (τ ∪ σ).N
     let lamn : ℕ → ℝ := fun i => if i ∈ τ then w (i + 2 * m) else 0
     let lam : τ → ℝ := fun i => lamp i.1 - lamn i.1
     let mu : ℕ → ℝ := fun i => if i ∈ σ then w i else 0
-    have eq1 : ∑ x : { x // x ∈ σ }, mu x • b x = ∑ x in σ, (fun y => w y • c y) x := by
+    have eq1 : ∑ x : { x // x ∈ σ }, mu x • b x = ∑ x ∈ σ, (fun y => w y • c y) x := by
       nth_rw 2 [← Finset.sum_attach]; simp; congr
       ext x j; simp [mu, c, cσ]
-    have eq2 : ∑ x : τ, (fun y => lamp y • cτ1 y) x = ∑ x in τ1, (fun y => w y • c y) x := by
+    have eq2 : ∑ x : τ, (fun y => lamp y • cτ1 y) x = ∑ x ∈ τ1, (fun y => w y • c y) x := by
       rw [shift_sum τ m (fun y => lamp y • cτ1 y)]
       nth_rw 2 [← Finset.sum_attach]; simp; congr
       ext x j
@@ -263,7 +272,7 @@ lemma general_polyhedra_is_polyhedra_ne (τ σ : Finset ℕ) (he : (τ ∪ σ).N
       rcases exist_of_mem_shift x.2 with ⟨a, eq⟩
       have hin : x.1 - m ∈ τ := by rw [eq]; simp
       simp [mu, lamp, c, hns, hin]; rw [eq]; simp
-    have eq3 : ∑ x : τ, (fun y => lamn y • cτ2 y) x = ∑ x in τ2, (fun y => w y • c y) x := by
+    have eq3 : ∑ x : τ, (fun y => lamn y • cτ2 y) x = ∑ x ∈ τ2, (fun y => w y • c y) x := by
       rw [shift_sum τ (2 * m) (fun y => lamn y • cτ2 y)]
       nth_rw 2 [← Finset.sum_attach]; simp; congr
       ext x j

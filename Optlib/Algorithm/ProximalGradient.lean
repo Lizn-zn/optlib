@@ -26,7 +26,7 @@ variable [ProperSpace E]
 variable {xm x₀: E} {s : Set E} {f : E → ℝ} {f' : E → E} {h : E → ℝ}
 variable {t : ℝ} {x : ℕ → E} {L : NNReal}
 
-class proximal_gradient_method (f h: E → ℝ) (f' : E → E) (x₀ : E) :=
+class proximal_gradient_method (f h: E → ℝ) (f' : E → E) (x₀ : E) where
   (xm : E) (t : ℝ) (x : ℕ → E) (L : NNReal)
   (fconv : ConvexOn ℝ univ f) (hconv : ConvexOn ℝ univ h)
   (h₁ : ∀ x₁ : E, HasGradientAt f (f' x₁) x₁) (h₂ : LipschitzWith L f')
@@ -117,6 +117,7 @@ theorem proximal_gradient_method_converge : ∀ (k : ℕ+),
         rw [add_comm_sub, ← add_sub]
         have (a : ℝ): alg.t / 2 * a - alg.t * a = - alg.t / 2 * a := by ring
         rw [this, sub_eq_add_neg, ← add_assoc, add_comm (h z) (f z)]; field_simp
+        simp only [one_div, Gt, φ]
   have φieq1 : ∀ x : E, φ (x - alg.t • Gt x) - φ alg.xm ≤
       (1 / (2 * alg.t)) * (‖x - alg.xm‖ ^ 2 - ‖x - alg.t • Gt x - alg.xm‖ ^ 2) := by
     intro x

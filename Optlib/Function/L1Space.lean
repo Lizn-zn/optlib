@@ -197,19 +197,21 @@ theorem l1Ball_sub_convexHull{x : α}{r : ℝ}(hr : r > 0)(hn : Module.finrank �
   have hz : ∀ (i : ι₀), z i ∈ ((⋃ i , {(r / ‖b i‖) • (b i)})  ∪  (⋃ i ,{- (r / ‖b i‖) • (b i)})) := by
     intro i
     simp only [dite_eq_ite, z]
+    obtain ⟨i, hi⟩ := i
     by_cases h₁ : (i : ℕ) = n + 1
-    · simp[h₁]
+    · simp [h₁]
     simp only [h₁, ↓reduceIte]
     by_cases h₂ : (i : ℕ) = n
     · simp[h₂]
     simp only [h₂, ↓reduceIte, add_right_inj]
-    let use_i : ι := ⟨i ,lem_i i.2 h₁ h₂⟩
+    let use_i : ι := ⟨i ,lem_i hi h₁ h₂⟩
     simp only [↓reduceDIte]
     let a := (b).equivFun (x₀ - x) use_i
     rcases lt_trichotomy a 0 with ha | ha | ha
     · right
       have : (b).equivFun (x₀ - x) use_i ≠ 0 := by linarith
       simp at this
+      unfold use_i at this
       rw[sign_neg ha]
       simp[this, ↓reduceIte]
     · left;

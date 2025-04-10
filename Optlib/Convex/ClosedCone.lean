@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Shengyang Xu
 -/
 import Optlib.Convex.ConicCaratheodory
+import Mathlib.Topology.Defs.Induced
+
 
 /-!
 # ClosedCone
@@ -134,11 +136,11 @@ lemma closed_conic_idp (s : Finset ℕ) (V : s → (EuclideanSpace ℝ (Fin n)))
       show Function.Injective Mᵀ.mulVec
       rw [Matrix.mulVec_injective_iff]; simp
       apply idp
-    have closeEmbF: IsClosedEmbedding F := by
+    have closeEmbF: Topology.IsClosedEmbedding F := by
       apply LinearMap.isClosedEmbedding_of_injective
       rw [LinearMap.ker_eq_bot]
       exact injF
-    apply IsClosedEmbedding.isClosedMap closeEmbF
+    apply Topology.IsClosedEmbedding.isClosedMap closeEmbF
   apply isclosed
   have domclosed : IsClosed (quadrant' s) := by
     let g := fun i : s ↦ {mu : s → ℝ | 0 ≤ mu i}

@@ -25,7 +25,7 @@ variable {f h : E → ℝ} {f' : E → E} {x0 : E}
 
 open Set Real
 
-class Nesterov_first (f h: E → ℝ) (f' : E → E) (x0 : E) :=
+class Nesterov_first (f h: E → ℝ) (f' : E → E) (x0 : E) where
   (l : NNReal) (x y : ℕ → E) (t γ : ℕ → ℝ) (hl : l > (0 : ℝ))
   (h₁ : ∀ x : E, HasGradientAt f (f' x) x) (convf : ConvexOn ℝ univ f)
   (h₂ : LipschitzWith l f') (convh : ConvexOn ℝ univ h)
@@ -258,7 +258,7 @@ theorem Nesterov_first_converge (minφ : IsMinOn (f + h) univ xm) :
   calc
     f (alg.x (k + 1)) + h (alg.x (k + 1)) - f xm - h xm =
         alg.γ k ^ 2 / (2 * alg.t k) * ((α k) * (φ (alg.x (↑k + 1))- φ xm)) := by
-      rw [sub_sub, ← mul_assoc, mul_comm _ (α k), h10 k]; simp
+      rw [sub_sub, ← mul_assoc, mul_comm _ (α k), h10 k]; unfold φ; simp
     _ ≤ alg.γ k ^ 2 / (2 * alg.t k) * nr k := by
       rw [mul_le_mul_left]; simp [nr]; apply div_pos
       rw [sq_pos_iff]; linarith [(alg.γbound k).1]; linarith [alg.tbound k]
@@ -292,7 +292,7 @@ variable {f h : E → ℝ} {f' : E → E} {x0 : E}
 
 open Set Real PNat
 
-class Nesterov_first_fix_stepsize (f h: E → ℝ) (f' : E → E) (x0 : E) :=
+class Nesterov_first_fix_stepsize (f h: E → ℝ) (f' : E → E) (x0 : E) where
   (l : NNReal) (hl : l > (0 : ℝ))
   (h₁ : ∀ x : E, HasGradientAt f (f' x) x) (convf: ConvexOn ℝ univ f)
   (h₂ : LipschitzWith l f') (convh : ConvexOn ℝ univ h)
@@ -314,8 +314,8 @@ instance {f h: E → ℝ} {f' : E → E} {x0 : E} [p : Nesterov_first_fix_stepsi
   initial := p.initial
   cond := by
     intro n; simp [p.teq n, p.teq (n - 1), p.γeq n, p.γeq (n - 1)]; field_simp
-    rw [mul_assoc, ← div_div, div_le_div_right, pow_two, ← mul_assoc, mul_div_assoc]
-    rw [div_self, add_sub]; ring_nf; simp; linarith; linarith [p.hl]
+    rw [mul_assoc, ← div_div, div_le_div_iff_of_pos_right, pow_two, ← mul_assoc, mul_div_assoc]
+    rw [div_self]; ring_nf; simp; linarith; linarith [p.hl]
   tbound := by
     intro k; rw [p.teq k]; simp; exact p.hl
   hl := p.hl
@@ -351,7 +351,7 @@ theorem Nesterov_first_fix_stepsize_converge (minφ : IsMinOn (f + h) univ xm):
       rw [h1, h2]; apply Nesterov_first_converge minφ
     _ ≤ 2 * alg.l / (k + 2) ^ 2 * ‖x0 - xm‖ ^ 2 := by
       apply mul_le_mul_of_nonneg_right; rw [alg.γeq k, alg.teq k]; field_simp
-      rw [pow_two, add_comm]; rw [mul_comm ((k + 2 : ℝ) ^ 2), ← div_div, div_le_div_right]
+      rw [pow_two, add_comm]; rw [mul_comm ((k + 2 : ℝ) ^ 2), ← div_div, div_le_div_iff_of_pos_right]
       rw [mul_rotate, ← mul_div, div_self, mul_one]
       simp; field_simp; apply sq_nonneg
 

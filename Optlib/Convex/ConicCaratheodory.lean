@@ -133,11 +133,15 @@ theorem conic_Caratheodory (s : Finset ℕ) (V : ℕ → (EuclideanSpace ℝ (Fi
         simp [not_nonempty_iff_eq_empty] at τempty
         rw [τempty] at τin
         subst τempty
-        simp_all only [empty_subset, true_and, linearIndependent_subsingleton_index_iff, Function.comp_apply, ne_eq,
-          IsEmpty.forall_iff, not_true_eq_false, to_card, idx]
+        simp only [empty_subset, true_and] at τin
+        simp only [linearIndependent_subsingleton_index_iff, Function.comp_apply] at nidp
+        simp only [ne_eq, IsEmpty.forall_iff, not_true_eq_false] at nidp
       have idxempty : idx = ∅ := by
-        simp_all only [Set.mem_empty_iff_false, and_false, to_card, idx, τ']
-      have f : False := by simp_all only [Set.mem_empty_iff_false, and_false, to_card, idx, τ']
+        simp only [Set.mem_empty_iff_false, coneτVempty] at τin
+        simp only [and_false] at τin
+      have f : False := by
+        rw [idxempty] at ne_idx
+        simp only [Set.finite_empty, Set.not_nonempty_empty, idx] at ne_idx
       exact f
   · intro σ σsubs; specialize τcardmin σ
     simp [idx, to_card] at τcardmin
