@@ -156,7 +156,8 @@ theorem Sufficient_Descent1 (γ : ℝ) (hγ : γ > 1)
     _ = _ := by
       simp only [WithLp.prod_norm_sq_eq_of_L2]
       rw [Prod.fst_sub, Prod.snd_sub, BCD.z, BCD.z]
-      ring_nf; simp
+      unfold ρ₁
+      ring_nf; field_simp;
 
 /- the value is monotone -/
 theorem Sufficient_Descent2 (γ : ℝ) (hγ : γ > 1)
@@ -506,7 +507,7 @@ lemma fconv (γ : ℝ) (hγ : γ > 1) (ck : ∀ k, alg.c k = 1 / (γ * l)) (dk :
         exact assx
       calc
         ‖z_.1 - alg.x (α x - 1)‖ ^ 2 / 2<(2*(ε/(γ*l)/3))/2:= by
-          apply (div_lt_div_right _).mpr
+          apply (div_lt_div_iff_of_pos_right _).mpr
           apply this
           linarith
         _=(ε/(γ*l)/3):= by
@@ -763,7 +764,7 @@ lemma gconv (γ : ℝ) (hγ : γ > 1) (ck: ∀ k, alg.c k = 1 / (γ * l)) (dk: �
         exact assx
       calc
         ‖z_.2 - alg.y (α x - 1)‖ ^ 2 / 2<(2*(ε/(γ*l)/3))/2:= by
-          apply (div_lt_div_right _).mpr
+          apply (div_lt_div_iff_of_pos_right _).mpr
           apply this
           linarith
         _=(ε/(γ*l)/3):= by
@@ -820,7 +821,7 @@ lemma limitset_property_1 (γ : ℝ) (hγ : γ > 1)
   have hz : ∀ (n : ℕ), alg.z n ∈ alg.z '' univ:= by intro n; use n; constructor; exact Set.mem_univ n; rfl
   rcases (tendsto_subseq_of_bounded (bd) (hz)) with ⟨a, _ , φ, ⟨hmφ,haφ⟩⟩
   use a; simp [limit_set]
-  rw [mapClusterPt_iff]; intro s hs
+  rw [mapClusterPt_iff_frequently]; intro s hs
   apply Filter.frequently_iff.mpr
   intro U hU; rw [Filter.mem_atTop_sets] at hU
   rcases hU with ⟨ax,hax⟩; rw [mem_nhds_iff] at hs
@@ -941,15 +942,17 @@ lemma limitset_property_3 (γ : ℝ) (hγ : γ > 1)
           @ENNReal.toReal_nonneg (EMetric.infEdist z B)]
       exact (((fun {x y} hx hy ↦ (ENNReal.toReal_eq_toReal_iff' hx hy).mp)
           ENNReal.top_ne_zero.symm (Metric.infEdist_ne_top nez_a) (id (Eq.symm this)))).symm
-      simp; constructor; rw [isOpen_compl_iff]; apply IsClosed.inter isClosed_setOf_clusterPt closea
-    have inB : z ∈ B :=by
+      simp; constructor; apply IsClosed.inter isClosed_setOf_clusterPt closea;
+      simp only [subset_refl, A, B]
+    have inB : z ∈ B := by
       apply EMetric.mem_closure_iff_infEdist_zero.mpr
       have : (EMetric.infEdist z B).toReal = 0 := by
         linarith [eq0, @ENNReal.toReal_nonneg (EMetric.infEdist z A),
           @ENNReal.toReal_nonneg (EMetric.infEdist z B)]
       exact (((fun {x y} hx hy ↦ (ENNReal.toReal_eq_toReal_iff' hx hy).mp)
           ENNReal.top_ne_zero.symm (Metric.infEdist_ne_top nez_b) (id (Eq.symm this)))).symm
-      simp; constructor; rw [isOpen_compl_iff]; apply IsClosed.inter isClosed_setOf_clusterPt closeb
+      simp; constructor; apply IsClosed.inter isClosed_setOf_clusterPt closeb
+      simp only [subset_refl, A, B]
     obtain hzin : z ∈ A ∩ B := mem_inter inA inB
     rw [disjoint_AB] at hzin; contradiction
   have contω : Continuous ω := by
@@ -1139,7 +1142,7 @@ theorem Limited_length (γ : ℝ) (hγ : γ > 1)
     (ck : ∀ k, alg.c k = 1 / (γ * l)) (dk : ∀ k, alg.d k = 1 / (γ * l))
     (bd : Bornology.IsBounded (alg.z '' univ)) (hψ : KL_function alg.ψ)
     (lbdψ : BddBelow (alg.ψ '' univ)): ∃ M : ℝ, ∀ n,
-    ∑ k in Finset.range n, ‖alg.z (k + 1) - alg.z k‖ ≤ M := by
+    ∑ k ∈ Finset.range n, ‖alg.z (k + 1) - alg.z k‖ ≤ M := by
   have :∃ z_∈ closure (alg.z '' univ), ∃ α:ℕ → ℕ,StrictMono α∧Tendsto
       (fun n ↦ alg.z (α n)) atTop (𝓝 z_):= by
     have hcs : IsSeqCompact (closure (alg.z '' univ)) := by
@@ -1357,12 +1360,12 @@ theorem Limited_length (γ : ℝ) (hγ : γ > 1)
         _ ≤ alg.ψ (alg.z i) -alg.ψ (alg.z (i + 1)) := suff_des.2 i
         _ = 0 := by simp [this i ige,this (i+1) (Nat.le_add_right_of_le ige)]
     apply dist_eq_zero.mp (by rw [NormedAddCommGroup.dist_eq, this])
-  use ∑ k in Finset.range N, ‖alg.z (k + 1) - alg.z k‖
+  use ∑ k ∈ Finset.range N, ‖alg.z (k + 1) - alg.z k‖
   intro n; by_cases nlen : n ≤ N
   · refine Finset.sum_le_sum_of_subset_of_nonneg (GCongr.finset_range_subset_of_le nlen) ?_
     exact fun a _ _ ↦norm_nonneg (alg.z (a + 1) - alg.z a)
   push_neg at nlen
-  have eq0 : ∑ i in (Finset.range n \ Finset.range N), ‖alg.z (i + 1) - alg.z i‖ = 0 := by
+  have eq0 : ∑ i ∈ (Finset.range n \ Finset.range N), ‖alg.z (i + 1) - alg.z i‖ = 0 := by
     apply Finset.sum_eq_zero; rintro x xin; simp at xin
     exact norm_sub_eq_zero_iff.mpr (eq0 x xin.2)
   refine Finset.sum_sdiff_le_sum_sdiff.mp ?_

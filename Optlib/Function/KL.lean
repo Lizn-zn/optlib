@@ -1,4 +1,5 @@
 import Mathlib.Analysis.Calculus.ContDiff.Basic
+import Mathlib.Analysis.Calculus.FDeriv.Norm
 import Optlib.Function.Proximal
 import Optlib.Differential.Subdifferential
 
@@ -26,8 +27,8 @@ lemma subdifferential_Graph' (f : E → ℝ) :
         use fun n => (u n, f (u n), v n)
         constructor
         · intro n; simp; exact (hv n).1
-        · apply Tendsto.prod_mk_nhds u_conv
-            (Tendsto.prod_mk_nhds fun_conv ((forall_and_right _ _).1 hv).2)
+        · apply Filter.Tendsto.prodMk_nhds u_conv
+            (Filter.Tendsto.prodMk_nhds fun_conv ((forall_and_right _ _).1 hv).2)
       · intro h
         simp [subdifferential_Graph, subdifferential]
         simp at h
@@ -63,7 +64,7 @@ theorem GraphOfSubgradientIsClosed {f : E → ℝ}
     exact this
   rw [nhds_prod_eq,Filter.tendsto_prod_iff'] at hconv;
   simp at hconv
-  exact Tendsto.prod_mk_nhds hconv.1 (Tendsto.prod_mk_nhds hf hconv.2)
+  exact Filter.Tendsto.prodMk_nhds hconv.1 (Filter.Tendsto.prodMk_nhds hf hconv.2)
 
 /- Definition of Φ_η, the family of desingularizing function -/
 def desingularizing_function (η : ℝ) := {φ : ℝ → ℝ | (ConcaveOn ℝ (Ico 0 η) φ) -- ∧ (∀ x ∈ Ioo 0 η, φ x > 0)
@@ -243,15 +244,15 @@ lemma edist_geq_const (h_noncrit : 0 ∉ subdifferential f x) :
         intro n
         exact (hv n).1
       have v_to_zero: Tendsto v atTop (𝓝 0) := by
-        rw [dist_zero_left] at hv
         have : Tendsto (fun n => ‖v n‖) atTop (𝓝 0) := by
+          simp only [dist_zero_left] at hv
           apply squeeze_zero (by simp) _ tendsto_one_div_add_atTop_nhds_zero_nat
           intro n
           apply le_of_lt (hv n).right
         apply tendsto_zero_iff_norm_tendsto_zero.2 this
       show (x, 0) ∈ subdifferential_Graph f
       apply GraphOfSubgradientIsClosed v_in_subdiff
-        (Filter.Tendsto.prod_mk_nhds u_to_x v_to_zero) fu_to_fx
+        (Filter.Tendsto.prodMk_nhds u_to_x v_to_zero) fu_to_fx
     contradiction
 
 /-- Non-critical KL property is naturally true -/

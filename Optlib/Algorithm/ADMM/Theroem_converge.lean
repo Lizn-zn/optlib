@@ -674,6 +674,7 @@ lemma Φ_Summable₁' [Setting E₁ E₂ F admm admm_kkt] :
    intro n
    let φ₀ := (fun i : ℕ => Φ i.succ)
    have : ∀ i ∈ Finset.range n , (φ₀ i)-(φ₀ (i+1)) = (Φ i.succ ) - (Φ (i.succ + 1)) := by
+      unfold φ₀
       simp only [Finset.mem_range, Nat.succ_eq_add_one, implies_true]
    have h : Finset.range n =Finset.range n := rfl
    rw[← Finset.sum_congr h this , Finset.sum_range_sub']

@@ -26,7 +26,7 @@ variable {f h : E → ℝ} {f' : E → E}
 
 open Set Real
 
-class Nesterov_second (f h : E → ℝ) (f' : E → E) (x0 : E) :=
+class Nesterov_second (f h : E → ℝ) (f' : E → E) (x0 : E) where
   (l : NNReal) (hl : l > (0 : ℝ)) (x y : ℕ → E) (z : ℕ+ → E) (t γ : ℕ → ℝ)
   (h₁ : ∀ x : E, HasGradientAt f (f' x) x) (convf: ConvexOn ℝ Set.univ f)
   (h₂ : LipschitzWith l f') (convh : ConvexOn ℝ univ h)
@@ -45,7 +45,7 @@ theorem Nesterov_second_convergence (minφ : IsMinOn (f + h) Set.univ xm):
     ∀ (k : ℕ), f (alg.x (k + 1)) + h (alg.x (k + 1)) - f xm - h xm ≤
       (alg.γ (k + 1)) ^ 2 / (2 * alg.t (k + 1)) * ‖x0 - xm‖ ^ 2 := by
   let φ := fun z : E ↦ f z + h z
-  have φdef : ∀ z : E, φ z = f z + h z := by simp
+  have φdef : ∀ z : E, φ z = f z + h z := by simp [φ]
   have h1 : ∀ k : ℕ+, alg.γ k • (alg.y (k - 1) - alg.y k) - alg.t k • (f' (alg.z k))
       ∈ (SubderivAt (alg.t k • h) (alg.y k)) := by
     intro k; obtain h1 := alg.update2 k
@@ -367,7 +367,7 @@ variable {f h : E → ℝ} {f' : E → E} {x0 : E}
 
 open Set Real PNat
 
-class Nesterov_second_fix_stepsize (f h: E → ℝ) (f' : E → E) (x0 : E) :=
+class Nesterov_second_fix_stepsize (f h: E → ℝ) (f' : E → E) (x0 : E) where
   (l : NNReal) (hl : l > (0 : ℝ)) (x y : ℕ → E) (z : ℕ+ → E) (t γ : ℕ → ℝ)
   (h₁ : ∀ x : E, HasGradientAt f (f' x) x) (convf: ConvexOn ℝ Set.univ f)
   (h₂ : LipschitzWith l f') (convh : ConvexOn ℝ univ h)

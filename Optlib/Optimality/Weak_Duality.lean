@@ -203,7 +203,11 @@ theorem convex_problem_convex_Lagrange {p : Constrained_OptimizationProblem E τ
   unfold Lagrange_function
   apply ConvexOn.sub
   · apply ConvexOn.sub h
-    simp [hτ]; apply concaveOn_const 0
+    simp [hτ];
+    simp [hτ] at lambda1
+    subst hτ
+    simp only [Finset.attach_empty, Finset.sum_empty]
+    apply concaveOn_const 0
     exact convex_univ
   apply ConcaveOn.sum _ convex_univ
   intro i

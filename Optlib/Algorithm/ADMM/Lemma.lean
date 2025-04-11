@@ -184,6 +184,7 @@ lemma norm_covex1 [Setting E₁ E₂ F admm admm_kkt]:∀ n : ℕ+ ,
    let g := A₁
    have h2 : u ∘ g = f := by
       ext x
+      unfold u g f
       simp only [Function.comp_apply]
    rw[← h2]
    have h3 : ⇑g ⁻¹' univ = univ := by
@@ -218,6 +219,7 @@ lemma norm_covex2 [Setting E₁ E₂ F admm admm_kkt]:∀ n : ℕ+ ,
    let g := A₂
    have h2 : u ∘ g = f := by
       ext x
+      unfold u g f
       simp only [Function.comp_apply]
    rw[← h2]
    have h3 : ⇑g ⁻¹' univ = univ := by
@@ -276,7 +278,7 @@ lemma ADMM_iter_process₁'_eq3_2' [Setting E₁ E₂ F admm admm_kkt]: ∀ n : 
    rw[this]
    show HasGradientAt ((fun x => ⟪c , (A₁ x)⟫ + c₁)) (A₁† c) x
    rw[hasGradientAt_iff_hasFDerivAt]
-   apply HasFDerivAt.add_const _ c₁
+   apply HasFDerivAt.add_const c₁ _
    show HasGradientAt ((fun x => ⟪c , (A₁ x)⟫)) (A₁† c) x
    apply ADMM_iter_process₁'_eq3_2'_1
 
@@ -554,7 +556,7 @@ lemma ADMM_iter_process₂'_eq3_2' [Setting E₁ E₂ F admm admm_kkt]: ∀ n : 
    rw[this]
    show HasGradientAt (fun x => ⟪c , (A₂ x)⟫ + c₁) (A₂† c) x
    rw[hasGradientAt_iff_hasFDerivAt]
-   apply HasFDerivAt.add_const _ c₁
+   apply HasFDerivAt.add_const c₁ _
    show HasGradientAt ((fun x => ⟪c , (A₂ x)⟫)) (A₂† c) x
    apply inner_gradient
 
@@ -1473,13 +1475,13 @@ lemma τ_min1_1 [Setting E₁ E₂ F admm admm_kkt] (h: 0 < τ ∧ τ ≤ 1) : m
    rcases h with ⟨h1, h2⟩
    apply min_eq_left
    have h3: τ ^ 2 ≤ 1 := by
-      apply pow_le_one;linarith;linarith
+      nlinarith
    linarith
 
 lemma τ_min1_2 [Setting E₁ E₂ F admm admm_kkt] (h: τ > 1 ) : min τ (1 + τ - τ ^ 2) = 1 + τ - τ ^ 2 := by
    apply min_eq_right
    have : 1 < τ ^ 2 := by
-      apply one_lt_pow;exact h;linarith
+      nlinarith
    linarith
 
 lemma τ_min2_1 [Setting E₁ E₂ F admm admm_kkt] (h: 0 < τ ∧ τ ≤ 1) : min 1 (1 + 1 / τ - τ ) = 1 := by
@@ -1498,7 +1500,7 @@ lemma τ_min2_2 [Setting E₁ E₂ F admm admm_kkt] (h: τ > 1 ) : min 1 (1 + 1 
    calc
       _ > 1 := h
       _ > 1 / τ := by
-         rw [one_div, ← inv_one];apply inv_lt_inv_of_lt;linarith;exact h
+         rw [one_div, ← inv_one];apply inv_strictAnti₀;linarith;exact h
    linarith
 
 lemma τ_min3_1 [Setting E₁ E₂ F admm admm_kkt] (h: 0 < τ ∧ τ ≤ 1) : max (1 - τ) (1 - 1 / τ) = 1 - τ := by
@@ -1517,7 +1519,7 @@ lemma τ_min3_2 [Setting E₁ E₂ F admm admm_kkt] (h: τ > 1) : max (1 - τ) (
    calc
       _ > 1 := h
       _ > 1 / τ := by
-         rw [one_div, ← inv_one];apply inv_lt_inv_of_lt;linarith;exact h
+         rw [one_div, ← inv_one];apply inv_strictAnti₀;linarith;exact h
    linarith
 
 lemma Φ_isdescending [Setting E₁ E₂ F admm admm_kkt]: ∀ n : ℕ+, (Φ n ) - (Φ (n + 1) ) ≥ (min τ (1 + τ - τ ^ 2) )* ρ

@@ -54,7 +54,7 @@ lemma norm2eq_dot (x :  EuclideanSpace ℝ (Fin m)) : ‖x‖₂ ^ 2 = x ⬝ᵥ 
 /- `⟪x, y⟫_ℝ = x ⬝ y` for x y in EuclideanSpace -/
 
 lemma real_inner_eq_dot (x y : EuclideanSpace ℝ (Fin m)) : inner x y = x ⬝ᵥ y := by
-  simp; rw [dotProduct]
+  simp; rw [dotProduct]; simp [mul_comm]
 
 /- gradient of a quadratic in ℝⁿ -/
 
@@ -83,7 +83,8 @@ lemma quadratic_gradient : ∀ x : (EuclideanSpace ℝ (Fin n)),
   simp; rw [← dotProduct]
   have aux1 : (fun x_1 ↦ ((Aᵀ * A) *ᵥ x) x_1) ⬝ᵥ (fun x_1 ↦ y x_1 - x x_1)
       = (Aᵀ * A) *ᵥ x ⬝ᵥ (y - x) := by
-    rw [dotProduct, dotProduct]; simp
+    rw [dotProduct, dotProduct]; simp [mul_comm]
+  rw [dotProduct_comm] at aux1
   rw [aux1, ← mulVec_mulVec, ← dot_mul_eq_transpose_mul_dot _ (y - x), Matrix.mulVec_sub,
       dotProduct_sub]
   ring_nf
@@ -122,8 +123,7 @@ private lemma linear_gradient : ∀ x : (EuclideanSpace ℝ (Fin n)),
   intro y _
   rw [dot_mul_eq_transpose_mul_dot, dot_mul_eq_transpose_mul_dot, ← dotProduct_sub]
   rw [EuclideanSpace.inner_eq_star_dotProduct]; simp
-  repeat rw [dotProduct]
-  simp
+  repeat rw [dotProduct]; simp [mul_comm]
   apply mul_nonneg; linarith [εpos]; apply norm_nonneg
 
 /- gradient of the square of an affine map in ℝⁿ -/
@@ -227,8 +227,8 @@ theorem norm_one_proximal
       · rw [hx]; simp; apply mul_nonneg; linarith [tpos]; linarith [μpos]
       · simp [hx] at minpoint; exact minpoint
     calc
-      μ⁻¹ * t⁻¹ * x i * y i ≤ μ⁻¹ * t⁻¹ * |x i * y i| := by
-        rw [mul_assoc _ (x i), mul_le_mul_left]
+      y i * (μ⁻¹ * t⁻¹ * x i) ≤ μ⁻¹ * t⁻¹ * |x i * y i| := by
+        rw [mul_comm, mul_assoc _ (x i), mul_le_mul_left]
         apply le_abs_self; rw [← mul_inv, inv_pos]; apply mul_pos
         linarith [μpos]; linarith [tpos]
       _ ≤ |y i| * μ⁻¹ * t⁻¹ * t * μ := by
@@ -244,19 +244,16 @@ theorem norm_one_proximal
   rcases abs_subg with ⟨_, abs_subg⟩
   let sgnxm := sign (xm i)
   have aux : sgnxm ∈ SubderivAt abs (xm i) := by
-    rw [abs_subg]; simp
+    rw [abs_subg]; simp [sgnxm]
   rw [← mem_SubderivAt, HasSubgradientAt] at aux
   specialize aux (y i)
   have aux2 : inner sgnxm (y i - xm i) = μ⁻¹ * t⁻¹ * (x i - xm i) * (y i - xm i) := by
-    simp [sgnxm]; left
+    simp [sgnxm];
     rw [minpoint]; simp; rw [minpoint] at hxm; simp at hxm; push_neg at hxm
     rcases hxm with ⟨xiieq0, ieq⟩
     have eq1 : max (|x i| - t * μ) 0 = |x i| - t * μ := by
       apply max_eq_left; linarith
     rw [eq1]; simp; nth_rw 3 [mul_sub]
-    rw [← sub_add, real_sign_mul_abs]; simp
-    nth_rw 2 [mul_comm (sign (x i))]
-    rw [← mul_assoc _ (t * μ), ← mul_inv, mul_comm μ t, inv_mul_cancel₀, one_mul]
     by_cases hx : 0 < x i
     · have eq2 : sign (sign (x i) * (|x i| - t * μ)) = 1 := by
         apply Real.sign_of_pos; apply mul_pos
@@ -265,7 +262,13 @@ theorem norm_one_proximal
           1 = sign (x i) := by
             symm; apply Real.sign_of_pos hx
         linarith [ieq]
-      rw [eq2]; symm; apply Real.sign_of_pos hx
+      rw [eq2]; symm;
+      have eq_posxi : |x i| = x i := by
+        apply abs_eq_self.mpr; linarith
+      have eq_signx : sign (x i) = 1 := by
+        apply Real.sign_of_pos; linarith
+      repeat rw [eq_signx, eq_posxi]
+      field_simp; linarith
     · have xneg : x i < 0 := by
         contrapose! xiieq0; linarith
       have eq2 : sign (sign (x i) * (|x i| - t * μ)) = -1 := by
@@ -275,8 +278,13 @@ theorem norm_one_proximal
             apply Real.sign_of_neg xneg
           _ < 0 := by linarith
         linarith [ieq]
-      rw [eq2]; symm; apply Real.sign_of_neg xneg
-    linarith [μpos, tpos]
+      rw [eq2]; symm;
+      have eq_negxi : |x i| = -x i := by
+        apply abs_eq_neg_self.mpr; linarith
+      have eq_signx : sign (x i) = -1 := by
+        apply Real.sign_of_neg xneg
+      repeat rw [eq_signx, eq_negxi]
+      field_simp; linarith
   rw [aux2] at aux; linarith [aux]
   push_neg; intro hxm'; contrapose! hxm'; exact hxm
 
@@ -298,7 +306,7 @@ open Set Real Matrix Finset NNReal
 
 
 structure LASSO (A : Matrix (Fin m) (Fin n) ℝ) (b : (Fin m) → ℝ) (μ : ℝ) (μpos : 0 < μ) (Ane0 : A ≠ 0)
-    (x₀ : (EuclideanSpace ℝ (Fin n))) :=
+    (x₀ : (EuclideanSpace ℝ (Fin n))) where
   (f h : (EuclideanSpace ℝ (Fin n)) → ℝ)
   (f' : (EuclideanSpace ℝ (Fin n)) → (EuclideanSpace ℝ (Fin n)))
   (L : ℝ≥0) (t : ℝ) (xm : (EuclideanSpace ℝ (Fin n))) (x y : ℕ → (EuclideanSpace ℝ (Fin n)))

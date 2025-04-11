@@ -9,6 +9,7 @@ import Mathlib.Analysis.Normed.Group.Basic
 import Mathlib.Analysis.InnerProductSpace.Basic
 import Mathlib.Topology.MetricSpace.Sequences
 import Mathlib.Analysis.Convex.Caratheodory
+import Mathlib.Analysis.Normed.Module.Convex
 import Mathlib.Analysis.Normed.Lp.PiLp
 import Mathlib.Topology.Algebra.Module.FiniteDimension
 import Mathlib.Analysis.InnerProductSpace.PiL2
@@ -61,7 +62,7 @@ open scoped Pointwise
 section Boundedness
 
 
-variable {X : Type*} [SeminormedAddCommGroup X] [NormedSpace ℝ X]
+variable {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X]
     {x₀ : X}{r : ℝ}{f : X → ℝ}
 
 /--
@@ -162,7 +163,7 @@ lemma Lipschitz_of_Bounded [T0Space X](hf : ConvexOn ℝ (ball x₀ r) f)
     have uy_pos :  uy ∈ ball x₀ r := sub hu
     let z := uy + (ε / ‖uy - vx‖) • (uy - vx)
     have sub_pos : 0 < ‖uy - vx‖ := by
-      apply norm_pos_iff'.mpr
+      apply norm_pos_iff.mpr
       exact sub_ne_zero_of_ne h
     have z_pos : z ∈ ball x₀ r := by
       simp only [mem_ball,dist_eq_norm,z]
@@ -193,7 +194,7 @@ lemma Lipschitz_of_Bounded [T0Space X](hf : ConvexOn ℝ (ball x₀ r) f)
       apply div_pos hε.1 this
     have b_pos : 0 < b := by
       apply div_pos
-      rw[norm_pos_iff']
+      rw[norm_pos_iff]
       exact sub_ne_zero_of_ne h
       apply this
     have a_add_b_one : a + b = 1 := by
@@ -243,7 +244,7 @@ lemma Lipschitz_of_Bounded [T0Space X](hf : ConvexOn ℝ (ball x₀ r) f)
       _ ≤ _ := by
         simp[K]
         apply mul_le_mul_of_nonneg_right _ (le_of_lt sub_pos)
-        rw[div_le_div_right hε.1]
+        rw[div_le_div_iff_of_pos_right hε.1]
         apply mul_le_mul_of_nonneg_left
         apply le_abs_self
         norm_num
